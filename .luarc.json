@@ -1,0 +1,23 @@
+{
+    "diagnostics.disable": [
+        "lowercase-global",
+        "deprecated",
+        "redundant-parameter",
+        "need-check-nil",
+        "undefined-field",
+        "cast-type-mismatch",
+        "param-type-mismatch",
+        "assign-type-mismatch",
+        "return-type-mismatch",
+        "invisible"
+    ],
+    "diagnostics.globals": [
+    ],
+    "runtime.version": "Lua 5.1",
+    "workspace.ignoreDir": [
+        ".github",
+        ".vscode",
+        "Medias",
+        "Libs"
+    ]
+}

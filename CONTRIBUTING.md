@@ -1,0 +1,43 @@
+# Contributing to ForeverQoL
+
+## Code Standards
+
+**Powershell:**
+
+- Follow the [PoshCode PowerShell Best Practices and Style Guide](https://github.com/poshcode/powershellpracticeandstyle).
+- Use [PSScriptAnalyzer](https://learn.microsoft.com/fr-fr/powershell/utility-modules/psscriptanalyzer/overview?view=ps-modules) for code formating.
+
+**Lua:**
+
+- Follow the [Olivine Labs Lua Style Guide](https://github.com/Olivine-Labs/lua-style-guide).
+- Use [Luacheck](https://github.com/lunarmodules/luacheck) for static code check.
+- Use [StyLua](https://github.com/JohnnyMorganz/StyLua) for code formating.
+
+## Setup Your Dev Environment
+
+1. Clone the repository with `git clone https://github.com/lamboley/ForeverQoL.git`
+1. Create the symlinks with `mklink /d "C:\Program Files (x86)\World of Warcraft\_classic_beta_\Interface\Addons\ForeverQoL" "C:\Users\USER\ForeverQoL"`
+
+## Pull Requests
+
+PRs should generally address only 1 issue at a time.
+Commiy shall be atomic and semantic, using [semantic-release commit message syntax](https://semantic-release.gitbook.io/semantic-release/#commit-message-format).
+
+Generally, pull requests should consist of a single logical commit.
+
+## Reporting Issues and Requesting Features
+
+1. Please check our [issue tracker](https://github.com/lamboley/ForeverQoL/issues) for your problem.
+1. If you find a match, please try to provide as much info as you can, so that we have a better picture about what the real problem is and how to fix it ASAP.
+1. If you didn't find any tickets with a problem similar to yours then please open a [new ticket](https://github.com/lamboley/ForeverQoL/issues/new/choose).
+    - Be descriptive as much as you can.
+
+## Linting
+
+There are CI check for linting the code, you'll need to run the following command before opening a pull request:
+
+- `make lint` must pass without errors
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the [Apache License 2.0](LICENSE), the same license that covers this project.

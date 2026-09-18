@@ -1,0 +1,43 @@
+## Interface: 16001
+## Author: ForeverQoL
+## Title: ForeverQoL
+## Notes: Provide quality of life improvements to enhance your World of Warcraft: Forever experience
+## Version: @project-version@
+## SavedVariables: ForeverQoLData
+
+## X-Curse-Project-ID: 1445676
+
+## Init
+Init.lua
+
+## Libs
+Libs\load.xml
+
+## Medias
+Core\Medias.lua
+
+## Locales
+Locales\enUS.lua
+Locales\frFR.lua
+
+## Core
+Core\Functions.lua
+Core\Commands.lua
+Core\Events.lua
+Core\Gui.lua
+
+## Modules
+Modules\System\System.lua
+Modules\System\Graphics.lua
+Modules\System\Audio.lua
+
+Modules\Interface\Interface.lua
+Modules\Interface\Known.lua
+Modules\Interface\Recipes.lua
+
+Modules\Gameplay\Gameplay.lua
+Modules\Gameplay\Vendor.lua
+Modules\Gameplay\Bank.lua
+Modules\Gameplay\Voice.lua
+Modules\Gameplay\ThichNhatHanh.lua
+Modules\Gameplay\BattlePet.lua
