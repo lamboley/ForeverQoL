@@ -5,8 +5,11 @@ local ForeverQoL = select(2, ...)
 local ipairs = ipairs
 local pairs = pairs
 local print = print
+local select = select
+local tostring = tostring
 local type = type
 local tonumber = tonumber
+local concat = table.concat
 local format = string.format
 local sort = table.sort
 
@@ -23,10 +26,25 @@ function ForeverQoL.Print(...)
 	print("|cff00D9FFForever QoL:|r", ...)
 end
 
-function ForeverQoL.Debug(...)
-	if ForeverQoLData.Configs["Debug"] then
-		print("|cffFFAA00Forever QoL:|r |cffFF6B6B[DEBUG]|r", ...)
+local reported = {}
+
+---Says what the addon cannot do, once per distinct message. Most of these hang off an event
+---that repeats -- a merchant opening, a zone change -- and a notice nobody can silence has to
+---say its piece and then shut up. Deliberately not behind a setting: a capability gap that
+---only speaks when asked is a capability gap nobody ever hears about.
+function ForeverQoL.Info(...)
+	local parts = {}
+	for i = 1, select("#", ...) do
+		parts[i] = tostring((select(i, ...)))
 	end
+
+	local message = concat(parts, " ")
+	if reported[message] then
+		return
+	end
+	reported[message] = true
+
+	print("|cff00D9FFForever QoL:|r", message)
 end
 
 ---Role of the current specialization, nil on a character that has none yet
@@ -162,7 +180,7 @@ function ForeverQoL.CreateItemList(configKey, label)
 	function list.EnableDrop(textEntry)
 		local editbox = textEntry and (textEntry.editbox or textEntry.widget)
 		if not editbox then
-			ForeverQoL.Debug("CreateItemList:", configKey, "has no text entry to drop onto")
+			ForeverQoL.Info("CreateItemList:", configKey, "has no text entry to drop onto")
 			return
 		end
 
@@ -196,7 +214,7 @@ function ForeverQoL.CreateModule(name, events)
         if self.enabled then return end
 
         if self.IsSupported and not self:IsSupported() then
-            ForeverQoL.Debug(name, "is not supported on this client")
+            ForeverQoL.Info(name, "is not supported on this client")
             return
         end
 
@@ -208,7 +226,7 @@ function ForeverQoL.CreateModule(name, events)
             -- An event the client does not know raises, and one missing feature
             -- must not take down the rest of the module
             if not pcall(self.RegisterEvent, self, event) then
-                ForeverQoL.Debug(name, "cannot register", event, "on this client")
+                ForeverQoL.Info(name, "cannot register", event, "on this client")
             end
         end
         self:SetScript('OnEvent', self.OnEvent)

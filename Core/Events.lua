@@ -25,14 +25,15 @@ Events:SetScript("OnEvent", function(_, event, ...)
                 end
             end
 
-            -- General
-            SetDefault("Debug", false)
 
             -- System
             SetDefault("MaxOutCameraDistance", true)
-            SetDefault("UsePerfectPixel", false)
-            SetDefault("UseCustomHeight", "")
+            SetDefault("UsePerfectPixel", true)
+            SetDefault("UseCustomHeight", "1440")
             SetDefault("MuteAnnoyingSound", false)
+
+            -- Social
+            SetDefault("DisableChatClamping", true)
 
             -- Gameplay
             SetDefault("DisableRightClickTargeting", true)
@@ -44,6 +45,7 @@ Events:SetScript("OnEvent", function(_, event, ...)
             SetDefault("RepairGearAutomatically", true)
             SetDefault("UseGuildBankForRepair", false)
             SetDefault("SellJunkAutomatically", true)
+            SetDefault("KeepGreyGear", true)
             SetDefault("SellListedItemsAutomatically", false)
             SetDefault("AutoSellItemList", {})
             SetDefault("LimitSellToTwelveItems", true)
@@ -59,6 +61,9 @@ Events:SetScript("OnEvent", function(_, event, ...)
             -- Matched as a prefix on the category name, ids differ from one profession to the next
             SetDefault("CollapsedCategoryNames", { "Appendix" })
             SetDefault("HideTooltipWhileInCombat", false)
+            SetDefault("BagBarVisibility", "never")
+            SetDefault("MicroMenuVisibility", "mouseover")
+            SetDefault("StatusBarVisibility", "never")
 
             -- Booleans that became dropdown states, carry the old setting over once
             -- and drop the retired key so this only runs on the first load after upgrading
@@ -73,6 +78,9 @@ Events:SetScript("OnEvent", function(_, event, ...)
             end
 
             Migrate("DisableDamageText", "FloatingCombatTextVisibility", "never")
+            Migrate("HideBagBar", "BagBarVisibility", "never")
+            Migrate("ShowMenuOnMouseover", "MicroMenuVisibility", "mouseover")
+            Migrate("ShowStatusBarOnMouseover", "StatusBarVisibility", "mouseover")
 
             -- Category ids only ever matched one profession, names replaced them
             ForeverQoLData.Configs["AlwaysCollapsedCategories"] = nil

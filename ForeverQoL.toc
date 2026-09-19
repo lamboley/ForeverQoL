@@ -5,8 +5,6 @@
 ## Version: @project-version@
 ## SavedVariables: ForeverQoLData
 
-## X-Curse-Project-ID: 1445676
-
 ## Init
 Init.lua
 
@@ -32,6 +30,8 @@ Modules\System\Graphics.lua
 Modules\System\Audio.lua
 
 Modules\Interface\Interface.lua
+Modules\Interface\Social.lua
+Modules\Interface\Bars.lua
 Modules\Interface\Known.lua
 Modules\Interface\Recipes.lua
 

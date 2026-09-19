@@ -32,6 +32,14 @@ globals = {
 	"LibStub",
 
 	-- WoW Namespaces
+	"BagsBar",
+	"MainStatusTrackingBarContainer",
+	"MicroMenuContainer",
+	"CHAT_FRAMES",
+	"ChatFrame1",
+	"QuickJoinToastButton",
+	"CHAT_FRAME_BUTTON_FRAME_MIN_ALPHA",
+	"DEFAULT_CHATFRAME_ALPHA",
 	"C_Bank",
 	"C_HousingCatalog",
 	"C_Container",
@@ -77,7 +85,6 @@ globals = {
 	"GetSpecializationRole",
 	"GetTime",
 	"InCombatLockdown",
-	"IsEquippableItem",
 	"IsInInstance",
 	"IsStealthed",
 	"LootSlot",

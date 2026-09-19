@@ -48,10 +48,9 @@ function Voice:OnEvent(_, ...)
 
 	local willPlay = PlaySoundFile(soundFile , 'Master', true, false)
 	if willPlay then
-		ForeverQoL.Debug("Played death sound:", soundFile)
 		lastSoundTime = currentTime
 	else
-		ForeverQoL.Debug("Failed to play death sound:", soundFile)
+		ForeverQoL.Info("Failed to play death sound:", soundFile)
 	end
 end
 

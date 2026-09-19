@@ -5,8 +5,16 @@ local ForeverQoL = select(2, ...)
 local tonumber = tonumber
 local select = select
 local abs = math.abs
+local format = string.format
 local max = math.max
 local min = math.min
+
+-- Sane bounds only. Whether the client accepts what is asked for is checked after the fact.
+local MIN_SCALE = 0.4
+local MAX_SCALE = 1.15
+
+-- Guards the SetScale below against the UI_SCALE_CHANGED it fires itself
+local applying = false
 
 -- WoW API
 local GetPhysicalScreenSize = GetPhysicalScreenSize
@@ -23,7 +31,6 @@ local Graphics = ForeverQoL.CreateModule("Graphics", {
 local function RepositionScaleConsumers()
     local Grid2Layout = _G.Grid2Layout
     if Grid2Layout and Grid2Layout.frame and Grid2Layout.db and Grid2Layout.RestorePositions then
-        ForeverQoL.Debug("Graphics: asking Grid2 to restore its positions")
         Grid2Layout:RestorePositions()
     end
 end
@@ -40,15 +47,33 @@ function Graphics.ApplyScale()
         return
     end
 
-    local scale = max(0.4, min(1.15, 768 / screenHeight))
+    local wanted = 768 / screenHeight
+    local scale = max(MIN_SCALE, min(MAX_SCALE, wanted))
 
-    -- SetScale fires UI_SCALE_CHANGED, which lands back here, this early return stops the recursion
+    -- Comparing against the scale actually in force, not against what was last asked for:
+    -- the client resets UIParent while it finishes building its interface, and only this
+    -- test notices the drift and puts the scale back on the next event.
     if abs(UIParent:GetScale() - scale) <= 0.0001 then
         return
     end
 
-    ForeverQoL.Debug("Graphics: UI scale", UIParent:GetScale(), "->", scale)
+    -- SetScale fires UI_SCALE_CHANGED, which lands straight back here
+    if applying then
+        return
+    end
+    applying = true
+
+    ForeverQoL.Info("Graphics: UI scale", UIParent:GetScale(), "->", scale)
     UIParent:SetScale(scale)
+    applying = false
+
+    -- The client silently keeps its own value when it considers the request out of range,
+    -- which otherwise looks exactly like the option doing nothing at all
+    local applied = UIParent:GetScale()
+    if abs(applied - scale) > 0.0001 then
+        ForeverQoL.Print(format("Asked for a UI scale of %.4f, the client kept %.4f.", scale, applied))
+    end
+
     RepositionScaleConsumers()
 end
 

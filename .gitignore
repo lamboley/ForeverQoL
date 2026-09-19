@@ -7,3 +7,8 @@
 # AI
 plans/
 .claude
+
+# Backup
+config/
+# Build output
+/bin/

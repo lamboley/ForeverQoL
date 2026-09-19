@@ -32,7 +32,7 @@ local function DepositListedItems()
     end
 
     if not GetContainerNumSlots or not GetContainerItemID or not GetContainerItemInfo or not UseContainerItem then
-        ForeverQoL.Debug("Bank: this client has no container API, nothing can be deposited")
+        ForeverQoL.Info("Bank: this client has no container API, nothing can be deposited")
         return
     end
 
@@ -78,13 +78,13 @@ function Bank:OnEvent(event, ...)
     end
 
     if not CanUseBank or not DepositMoney or not WARBAND_BANK then
-        ForeverQoL.Debug("Bank: this client has no warband bank")
+        ForeverQoL.Info("Bank: this client has no warband bank")
         return
     end
 
     -- The warband bank is not reachable from every banker, and not at all before it is unlocked
     if not CanUseBank(WARBAND_BANK) then
-        ForeverQoL.Debug("Bank: the warband bank cannot be used here")
+        ForeverQoL.Info("Bank: the warband bank cannot be used here")
         return
     end
 

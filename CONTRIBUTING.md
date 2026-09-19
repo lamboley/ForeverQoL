@@ -11,7 +11,6 @@
 
 - Follow the [Olivine Labs Lua Style Guide](https://github.com/Olivine-Labs/lua-style-guide).
 - Use [Luacheck](https://github.com/lunarmodules/luacheck) for static code check.
-- Use [StyLua](https://github.com/JohnnyMorganz/StyLua) for code formating.
 
 ## Setup Your Dev Environment
 

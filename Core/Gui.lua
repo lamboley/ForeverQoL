@@ -31,12 +31,12 @@ function ForeverQoLGui:Init()
     local tabsContainer = DF:CreateTabContainer(ForeverQoLGui, "Forever QoL", "ForeverQoLGuiTabsContainers",
         {
             {
-                name = "General",
-                text = "General"
-            },
-            {
                 name = "System",
                 text = "System"
+            },
+            {
+                name = "Social",
+                text = "Social"
             },
             {
                 name = "Gameplay",
@@ -95,28 +95,6 @@ function ForeverQoLGui:Init()
             }, 1, 100, "artwork", {0, 1, 0, 1}, "gradientBelow")
 		gradientBelow:SetPoint("top-bottom", frameBackgroundTextureTopLine)
 	end
-
-    -- General
-    DF:BuildMenu(tabsContainer:GetTabFrameByName("General"),
-        {
-            { -- General
-                type = "label",
-                get = function() return "General" end,
-                text_template = orangeTextTemplate
-            },
-            { -- Enable Debug
-                type = "toggle",
-                boxfirst = true,
-                name = "Enable Debug",
-                get = function() return ForeverQoLData.Configs["Debug"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["Debug"] = value
-                end,
-            },
-        },
-        10, -100, HEIGHT - 10, false,
-        textTemplate,  dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
-    )
 
     -- System
     DF:BuildMenu(tabsContainer:GetTabFrameByName("System"),
@@ -212,6 +190,30 @@ function ForeverQoLGui:Init()
         },
         10, -100, HEIGHT - 10, false,
         textTemplate,  dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
+    )
+
+    -- Social
+    DF:BuildMenu(tabsContainer:GetTabFrameByName("Social"),
+        {
+            { -- Chat
+                type = "label",
+                get = function() return "Chat" end,
+                text_template = orangeTextTemplate
+            },
+            { -- Disable Chat Clamping
+                type = "toggle",
+                boxfirst = true,
+                name = "Disable Chat Clamping",
+                desc = "Let the chat windows be dragged past the edge of the screen",
+                get = function() return ForeverQoLData.Configs["DisableChatClamping"] end,
+                set = function(_, _, value)
+                    ForeverQoLData.Configs["DisableChatClamping"] = value
+                    ForeverQoL.Interface.Social:UpdateChat()
+                end,
+            },
+        },
+        10, -100, HEIGHT - 10, false,
+        textTemplate, dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
     )
 
     -- Gameplay
@@ -347,10 +349,20 @@ function ForeverQoLGui:Init()
                 type = "toggle",
                 boxfirst = true,
                 name = "Sell Junk Automatically",
-                desc = "Sell every grey item except weapons and armour, those go on the list below if you want them gone",
+                desc = "Sell every grey item in the bags",
                 get = function() return ForeverQoLData.Configs["SellJunkAutomatically"] end,
                 set = function(_, _, value)
                     ForeverQoLData.Configs["SellJunkAutomatically"] = value
+                end,
+            },
+            { -- Keep Grey Gear
+                type = "toggle",
+                boxfirst = true,
+                name = "Keep Grey Gear",
+                desc = "Spare grey weapons and armour, sell the rest. Put one on the list below to sell it anyway",
+                get = function() return ForeverQoLData.Configs["KeepGreyGear"] end,
+                set = function(_, _, value)
+                    ForeverQoLData.Configs["KeepGreyGear"] = value
                 end,
             },
             { -- Sell Listed Items Automatically
@@ -529,6 +541,35 @@ function ForeverQoLGui:Init()
                 set = function(_, _, value)
                     ForeverQoLData.Configs["HideTooltipWhileInCombat"] = value
                 end,
+            },
+            {
+                type = "blank"
+            },
+            { -- Bars
+                type = "label",
+                get = function() return "Bars" end,
+                text_template = orangeTextTemplate
+            },
+            { -- Bag Bar Visibility
+                type = "select",
+                name = "Bag Bar Visibility",
+                desc = "The bag slots bar next to the micro menu",
+                get = function() return ForeverQoLData.Configs["BagBarVisibility"] end,
+                values = function() return ForeverQoL.Interface.Bars.GetVisibilityOptions("BagBarVisibility") end,
+            },
+            { -- Micro Menu Visibility
+                type = "select",
+                name = "Micro Menu Visibility",
+                desc = "The row of menu buttons, character sheet through game menu",
+                get = function() return ForeverQoLData.Configs["MicroMenuVisibility"] end,
+                values = function() return ForeverQoL.Interface.Bars.GetVisibilityOptions("MicroMenuVisibility") end,
+            },
+            { -- Status Bar Visibility
+                type = "select",
+                name = "Status Bar Visibility",
+                desc = "The experience and reputation bar",
+                get = function() return ForeverQoLData.Configs["StatusBarVisibility"] end,
+                values = function() return ForeverQoL.Interface.Bars.GetVisibilityOptions("StatusBarVisibility") end,
             },
         },
         10, -100, HEIGHT - 10, false,

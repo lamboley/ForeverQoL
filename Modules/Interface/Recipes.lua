@@ -82,7 +82,6 @@ local function TryHook()
 
 	hooksecurefunc(ProfessionsRecipeListRecipeMixin, "Init", AddRecipeIcon)
 	hookRegistered = true
-	ForeverQoL.Debug("Recipes: hooked the recipe row")
 
 	return true
 end
@@ -122,7 +121,6 @@ local function CollapseCategories()
 		-- Skipping nodes already collapsed avoids a pointless Invalidate on every pass
 		if categoryInfo and not node:IsCollapsed() and ShouldCollapse(categoryInfo.name) then
 			node:SetCollapsed(true)
-			ForeverQoL.Debug("Recipes: collapsed", categoryInfo.name, categoryInfo.categoryID)
 		end
 	end
 end
@@ -141,7 +139,6 @@ local function TryHookCraftingPage()
 	-- Hooking the frame itself, not the mixin, so no copy timing to worry about
 	hooksecurefunc(page, "Init", CollapseCategories)
 	craftingHookRegistered = true
-	ForeverQoL.Debug("Recipes: hooked the crafting page")
 
 	return true
 end
@@ -149,9 +146,8 @@ end
 function Recipes:PreEnable()
 	-- Another addon can load the professions UI before this module enables, so no single
 	-- event is enough: try on enable and on every ADDON_LOADED until both hooks take
-	if not (TryHook() and TryHookCraftingPage()) then
-		ForeverQoL.Debug("Recipes: professions UI not loaded yet, waiting")
-	end
+	TryHook()
+	TryHookCraftingPage()
 end
 
 function Recipes:OnEvent(event, ...)

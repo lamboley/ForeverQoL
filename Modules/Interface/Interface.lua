@@ -99,11 +99,15 @@ function Interface:OnEvent(event, ...)
 end
 
 function Interface:PostEnable()
+    self.Social:Enable()
+    self.Bars:Enable()
     self.Known:Enable()
     self.Recipes:Enable()
 end
 
 function Interface:PostDisable()
+    self.Social:Disable()
+    self.Bars:Disable()
     self.Known:Disable()
     self.Recipes:Disable()
 end

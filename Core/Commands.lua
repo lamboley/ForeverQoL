@@ -18,9 +18,7 @@ SLASH_ForeverQoL1 = "/foreverqol"
 SLASH_ForeverQoL2 = "/fql"
 
 SlashCmdList["ForeverQoL"] = function(msg)
-    if msg == "debug" then
-        ForeverQoL.Print(ForeverQoLData.Configs["FloatingCombatTextVisibility"])
-    elseif msg == "pet" then
+    if msg == "pet" then
         if not GetSummonedPetGUID or not GetPetInfoByPetID then
             ForeverQoL.Print("This client has no pet journal, there is nothing to report.")
             return
