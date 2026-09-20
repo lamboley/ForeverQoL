@@ -6,6 +6,8 @@
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/14730/badge)](https://www.bestpractices.dev/projects/14730)
 [![Trivy Security Scan](https://github.com/lamboley/ForeverQoL/actions/workflows/trivy-scan.yml/badge.svg)](https://github.com/lamboley/ForeverQoL/actions/workflows/trivy-scan.yml)
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/lamboley/ForeverQoL?sort=semver)
+[![wakatime](https://wakatime.com/badge/user/a7d28313-c4f9-4f0a-9d46-7f09e10ba82a/project/b7820ef3-bb32-43df-bc05-bef68c8b3bec.svg)](https://wakatime.com/badge/user/a7d28313-c4f9-4f0a-9d46-7f09e10ba82a/project/b7820ef3-bb32-43df-bc05-bef68c8b3bec)
+[![Curseforge](https://img.shields.io/curseforge/dt/1445676?label=CurseForge&color=F16436)](https://www.curseforge.com/wow/addons/AlomawaniQoL)
 
 ForeverQoL is a World of Warcraft: Forever add-on to bring quality of life tweaks.
 
