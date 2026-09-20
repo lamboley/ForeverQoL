@@ -1,6 +1,5 @@
 # ForeverQoL
 
-
 [![License](https://img.shields.io/github/license/lamboley/ForeverQoL)](LICENSE)
 [![CI](https://github.com/lamboley/ForeverQoL/actions/workflows/ci.yml/badge.svg)](https://github.com/lamboley/ForeverQoL/actions/workflows/ci.yml)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/14730/badge)](https://www.bestpractices.dev/projects/14730)
@@ -10,6 +9,14 @@
 [![Curseforge](https://img.shields.io/curseforge/dt/1445676?label=CurseForge&color=F16436)](https://www.curseforge.com/wow/addons/AlomawaniQoL)
 
 ForeverQoL is a World of Warcraft: Forever add-on to bring quality of life tweaks.
+
+## Features
+
+- __Graphics:__ Custom scale, max out camera distance.
+- __Social:__ Un-Clamp chat window, set Editbox at the top.
+- __Interface:__ Allow change to scale of ObjectiveTrackerFrame, Choose when to collapse ObjectiveTrackerFrame, Show/Hide combat text.
+- __Gameplay:__ Add rp voice, disable right click targeting in combat.
+- __Merchant:__ Automatic gear repair, automatic junk selling.
 
 ## Feedback
 
