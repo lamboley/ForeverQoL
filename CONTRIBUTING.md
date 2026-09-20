@@ -7,6 +7,12 @@
 - Follow the [Olivine Labs Lua Style Guide](https://github.com/Olivine-Labs/lua-style-guide).
 - Use [Luacheck](https://github.com/lunarmodules/luacheck) for static code check.
 
+**Security:**
+
+- Knowledge of the 8 principles from [Saltzer and Schroeder](https://www.cs.virginia.edu/~evans/cs551/saltzer/).
+- Knowledge of [CWA/SANS top 25](https://cwe.mitre.org/top25/) or [OWASP Top 10](https://github.com/OWASP/Top10/).
+- You may learn more about security from the [Secure Software Development Fundamentals](https://openssf.org/training/courses/) course.
+
 ## Pull Requests
 
 PRs should generally address only 1 issue at a time.
