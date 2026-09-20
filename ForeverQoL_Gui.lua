@@ -1,13 +1,8 @@
----@class ForeverQoL
 local ForeverQoL = select(2, ...)
 
--- Lua API
-local tonumber = tonumber
-
----@type detailsframework
 local DF = _G["DetailsFramework"]
 
-local WIDTH, HEIGHT = 1100, 670
+local CONST_WIDTH, CONST_HEIGHT = 1100, 670
 
 local textTemplate = DF:GetTemplate("font", "OPTIONS_FONT_TEMPLATE")
 local dropdownTemplate = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
@@ -16,19 +11,277 @@ local sliderTemplate = DF:GetTemplate("slider", "OPTIONS_SLIDER_TEMPLATE")
 local buttonTemplate = DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE")
 local orangeTextTemplate = DF:GetTemplate("font", "ORANGE_FONT_TEMPLATE")
 
-local ForeverQoLGui = DF:CreateSimplePanel(UIParent, WIDTH, HEIGHT, "Forever QoL", "ForeverQoLGui", {UseScaleBar = true})
+local ForeverQoLGui = DF:CreateSimplePanel(UIParent, CONST_WIDTH, CONST_HEIGHT, "Forever QoL", "ForeverQoLGui", {UseScaleBar = true})
 ForeverQoLGui.Title:SetAlpha(.75)
 ForeverQoLGui:SetFrameStrata("DIALOG")
 ForeverQoLGui:SetToplevel(true)
 DF:ApplyStandardBackdrop(ForeverQoLGui)
--- ForeverQoLGui:SetPoint("CENTER")
 
 local versionText = DF:CreateLabel (ForeverQoLGui, "0.0.1", 11, "white")
 versionText:SetPoint ("topright", ForeverQoLGui, "topright", -25, -7)
 versionText:SetAlpha(0.75)
 
+local CONST_ICON_SIZE, CONST_ICON_PAD = 38, 4
+local CONST_ICONS_PER_ROW = 7
+
+local CONST_CELL = CONST_ICON_SIZE + CONST_ICON_PAD
+local CONST_COLUMN_WIDTH = CONST_ICONS_PER_ROW * CONST_CELL + 10
+local CONST_LIST_WIDTH = CONST_COLUMN_WIDTH * 2 + 70
+local CONST_LIST_HEIGHT = CONST_HEIGHT
+local CONST_GRID_ROWS = math.floor((CONST_LIST_HEIGHT - 110) / CONST_CELL)
+
+local itemListWindows = {}
+
+---Every distinct item the bags hold, sorted by name.
+local function ScanBags()
+	local seen, items = {}, {}
+
+	for bagID = 0, NUM_BAG_SLOTS do
+		for slot = 1, C_Container.GetContainerNumSlots(bagID) or 0 do
+			local info = C_Container.GetContainerItemInfo(bagID, slot)
+			local itemID = info and info.itemID
+			if itemID and not seen[itemID] then
+				seen[itemID] = true
+				items[#items + 1] = {
+					id = itemID,
+					icon = info.iconFileID,
+					quality = info.quality,
+					name = (C_Item.GetItemInfo(itemID)) or string.format("Item #%d", itemID),
+				}
+			end
+		end
+	end
+
+	table.sort(items, function(a, b) return a.name < b.name end)
+
+	return items
+end
+
+---Cuts a flat list into rows, because a scrollbox line is a row of icons here.
+local function ToGridRows(items)
+	local rows = {}
+
+	for i = 1, #items, CONST_ICONS_PER_ROW do
+		local row = {}
+		for column = 0, CONST_ICONS_PER_ROW - 1 do
+			row[column + 1] = items[i + column]
+		end
+		rows[#rows + 1] = row
+	end
+
+	return rows
+end
+
+---A window over one of the item lists, laid out like a bag: the bags on the left to pick from,
+---the list itself on the right. The sell list and the deposit list differ only by their data,
+---so they share the whole thing. Built the first time it is asked for, then reused.
+local function GetItemListWindow(list, title, frameName)
+	if itemListWindows[frameName] then
+		return itemListWindows[frameName]
+	end
+
+	local window = DF:CreateSimplePanel(UIParent, CONST_LIST_WIDTH, CONST_LIST_HEIGHT, title, frameName)
+	window:SetFrameStrata("FULLSCREEN_DIALOG")
+	window:SetToplevel(true)
+	DF:ApplyStandardBackdrop(window)
+
+	-- Beside the options panel rather than on top of it. Only at creation, so dragging it
+	-- somewhere else afterwards sticks.
+	window:ClearAllPoints()
+	window:SetPoint("topleft", ForeverQoLGui, "topright", 8, 0)
+	window:Hide()
+
+	local bagScroll, listScroll
+	local searchText = ""
+
+	local function CreateSlot(row, column, onClick)
+		-- BackdropTemplate, otherwise the frame has no SetBackdrop on a modern client
+		local slot = CreateFrame("button", nil, row, "BackdropTemplate")
+		slot:SetPoint("left", row, "left", (column - 1) * CONST_CELL + 2, 0)
+		slot:SetSize(CONST_ICON_SIZE, CONST_ICON_SIZE)
+
+		-- One interface unit is not one screen pixel once UIParent is scaled, so a width of 1
+		-- lands on one pixel or two depending where the slot falls. This asks for the unit
+		-- size that rounds to exactly one pixel at the scale actually in force.
+		local edge = PixelUtil.GetNearestPixelSize(1, slot:GetEffectiveScale(), 1)
+
+		-- Its own backdrop rather than the standard one, so the rarity edge is a known width
+		slot:SetBackdrop({
+			bgFile = [[Interface\Buttons\WHITE8X8]],
+			edgeFile = [[Interface\Buttons\WHITE8X8]],
+			edgeSize = edge,
+		})
+		slot:SetBackdropColor(0, 0, 0, 0.6)
+
+		slot.icon = slot:CreateTexture(nil, "artwork")
+		-- Inset by the edge width, otherwise the icon covers the rarity it is meant to show
+		slot.icon:SetPoint("topleft", slot, "topleft", edge, -edge)
+		slot.icon:SetPoint("bottomright", slot, "bottomright", -edge, edge)
+		-- The default coordinates include the icon's own border
+		slot.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+
+		slot:SetScript("OnClick", onClick)
+
+		slot:SetScript("OnEnter", function(self)
+			if not self.entry then
+				return
+			end
+
+			GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+			GameTooltip:SetHyperlink("item:" .. self.entry.id)
+			GameTooltip:Show()
+		end)
+
+		slot:SetScript("OnLeave", function()
+			GameTooltip:Hide()
+		end)
+
+		return slot
+	end
+
+	local function GridLine(onClick, acceptsDrop)
+		return function(self, index)
+			local row = CreateFrame("frame", nil, self)
+			row:SetPoint("topleft", self, "topleft", 1, -((index - 1) * CONST_CELL) - 2)
+			row:SetSize(CONST_COLUMN_WIDTH - 12, CONST_ICON_SIZE)
+
+			row.slots = {}
+			for column = 1, CONST_ICONS_PER_ROW do
+				local slot = CreateSlot(row, column, onClick)
+				if acceptsDrop then
+					list:EnableDrop(slot)
+				end
+
+				row.slots[column] = slot
+			end
+
+			return row
+		end
+	end
+
+	local function RefreshGrid(self, data, offset, totalLines)
+		for i = 1, totalLines do
+			local rowData = data[i + offset]
+			if rowData then
+				local row = self:GetLine(i)
+				for column = 1, CONST_ICONS_PER_ROW do
+					local slot = row.slots[column]
+					local entry = rowData[column]
+
+					slot.entry = entry
+					if entry then
+						slot.icon:SetTexture(entry.icon or (C_Item.GetItemIconByID(entry.id)))
+
+						-- The slot border carries the rarity, the way a bag slot does
+						local color = entry.quality and ITEM_QUALITY_COLORS[entry.quality]
+						if color then
+							slot:SetBackdropBorderColor(color.r, color.g, color.b, 1)
+						else
+							slot:SetBackdropBorderColor(0, 0, 0, 0.5)
+						end
+
+						if ForeverQoLData.Configs["TintUnusableRed"] and ForeverQoL.IsUnusable(entry.id) then
+							slot.icon:SetVertexColor(1, 0.3, 0.3)
+						else
+							slot.icon:SetVertexColor(1, 1, 1)
+						end
+
+						slot:Show()
+					else
+						slot:Hide()
+					end
+				end
+
+				row:Show()
+			end
+		end
+	end
+
+	---Opening always reloads, since the bags will have moved since last time.
+	function window:Toggle()
+		if self:IsShown() then
+			self:Hide()
+			return
+		end
+
+		self:Reload()
+		self:Show()
+	end
+
+	function window:Reload(resetScroll)
+		local available, selected = {}, {}
+		for _, entry in ipairs(ScanBags()) do
+			if not list:Contains(entry.id) and (entry.name:lower():find(searchText, 1, true)
+				or tostring(entry.id):find(searchText, 1, true)) then
+				available[#available + 1] = entry
+			end
+		end
+		for _, entry in ipairs(list:GetSorted()) do
+			if entry.name:lower():find(searchText, 1, true) or tostring(entry.id):find(searchText, 1, true) then
+				selected[#selected + 1] = entry
+			end
+		end
+
+		bagScroll:SetData(ToGridRows(available))
+		listScroll:SetData(ToGridRows(selected))
+		if resetScroll then
+			-- A search must start at its first result, even when the unfiltered list was scrolled down.
+			bagScroll:OnVerticalScroll(0)
+			listScroll:OnVerticalScroll(0)
+		else
+			bagScroll:Refresh()
+			listScroll:Refresh()
+		end
+	end
+
+	local bagHeader = DF:CreateLabel(window, "In your bags, click to add", 12, "orange")
+	bagHeader:SetPoint("topleft", window, "topleft", 20, -68)
+
+	bagScroll = DF:CreateScrollBox(window, frameName .. "Bags", RefreshGrid, {},
+		CONST_COLUMN_WIDTH, CONST_GRID_ROWS * CONST_CELL, CONST_GRID_ROWS, CONST_CELL)
+	bagScroll:SetPoint("topleft", window, "topleft", 20, -88)
+	bagScroll:CreateLines(GridLine(function(slot)
+		if not list:Contains(slot.entry.id) then
+			list:Add(slot.entry.id)
+		end
+	end), CONST_GRID_ROWS)
+	DF:ReskinSlider(bagScroll)
+
+	local listHeader = DF:CreateLabel(window, "On the list, drag here to add, click to remove", 12, "orange")
+	listHeader:SetPoint("topleft", window, "topleft", CONST_COLUMN_WIDTH + 50, -68)
+
+	listScroll = DF:CreateScrollBox(window, frameName .. "List", RefreshGrid, {},
+		CONST_COLUMN_WIDTH, CONST_GRID_ROWS * CONST_CELL, CONST_GRID_ROWS, CONST_CELL)
+	listScroll:SetPoint("topleft", window, "topleft", CONST_COLUMN_WIDTH + 50, -88)
+	listScroll:CreateLines(GridLine(function(slot)
+		list:Remove(slot.entry.id)
+	end, true), CONST_GRID_ROWS)
+	DF:ReskinSlider(listScroll)
+
+	-- The scrollbox catches whatever lands between or below the slots
+	list:EnableDrop(listScroll)
+
+	local searchLabel = DF:CreateLabel(window, "Search name or item ID", 12, "orange")
+	searchLabel:SetPoint("topleft", window, "topleft", 20, -36)
+	local searchBox = DF:CreateSearchBox(window, function(self)
+		searchText = self:GetText():match("^%s*(.-)%s*$"):lower()
+		window:Reload(true)
+	end)
+	searchBox:SetPoint("topleft", window, "topleft", 185, -27)
+	searchBox:SetWidth(CONST_LIST_WIDTH - 210)
+
+	-- Adding resolves the item name asynchronously, so the list says when it actually changed
+	list.OnChanged = function()
+		window:Reload()
+	end
+
+	itemListWindows[frameName] = window
+
+	return window
+end
+
 function ForeverQoLGui:Init()
-    local tabsContainer = DF:CreateTabContainer(ForeverQoLGui, "Forever QoL", "ForeverQoLGuiTabsContainers",
+    local tabsContainer = DF:CreateTabContainer(self, "Forever QoL", "ForeverQoLGuiTabsContainers",
         {
             {
                 name = "System",
@@ -48,21 +301,16 @@ function ForeverQoLGui:Init()
             },
         },
         {
-            width = WIDTH,
-            height = HEIGHT - 10,
+            width = CONST_WIDTH,
+            height = CONST_HEIGHT - 10,
             backdrop_color = { 0, 0, 0, 0 },
-            -- y_offset = 0,
             button_width = 108,
-            -- button_height = 23,
-            -- button_x = 220,
-            -- button_y = 1,
-            -- button_text_size = 9,
             close_text_alpha = 0.4,
             container_width_offset = 30,
             backdrop_border_color = { 0.1, 0.1, 0.1, 0.4 }
         }
     )
-    tabsContainer:SetPoint("CENTER", ForeverQoLGui, "CENTER", 0, 0)
+    tabsContainer:SetPoint("CENTER", self, "CENTER", 0, 0)
 
     for _, frame in ipairs(tabsContainer.AllFrames) do
 		local frameBackgroundTexture = frame:CreateTexture(nil, "artwork")
@@ -136,11 +384,11 @@ function ForeverQoLGui:Init()
                 type = "textentry",
                 name = "Use Custom Height",
                 desc = "If the UI is too small when using the option above, you can set a custom vertical resolution here. Requires /reload to take effect",
-                width = 50,
+                CONST_WIDTH = 50,
                 get = function() return ForeverQoLData.Configs["UseCustomHeight"] or "" end,
                 set = function(_, _, value)
-                    local height = tonumber(value)
-                    if height and height >= 480 and height <= 4320 then
+                    local CONST_HEIGHT = tonumber(value)
+                    if CONST_HEIGHT and CONST_HEIGHT >= 480 and CONST_HEIGHT <= 4320 then
                         ForeverQoLData.Configs["UseCustomHeight"] = value
                     else
                         ForeverQoL.Print("Custom height must be between 480-4320")
@@ -153,21 +401,6 @@ function ForeverQoLGui:Init()
                     OnEnterPressed = function(self) return end
                 },
             },
-            -- { -- UI Scale
-            --     type = "range",
-            --     name = "UI Scale",
-            --     get = function() return ForeverQoLData.Configs["UIParentScale"] end,
-            --     set = function(_, _, value)
-            --         ForeverQoLData.Configs["UIParentScale"] = value
-            --     end,
-            --     min = 0.0000001,
-            --     max = 2,
-            --     step = 0.0000001,
-            --     usedecimals = true,
-            -- },
-            -- {
-            --     type = "breakline"
-            -- },
             {
                 type = "breakline",
                 spacement = true,
@@ -188,7 +421,7 @@ function ForeverQoLGui:Init()
                 end,
             },
         },
-        10, -100, HEIGHT - 10, false,
+        10, -100, CONST_HEIGHT - 10, false,
         textTemplate,  dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
     )
 
@@ -208,11 +441,11 @@ function ForeverQoLGui:Init()
                 get = function() return ForeverQoLData.Configs["DisableChatClamping"] end,
                 set = function(_, _, value)
                     ForeverQoLData.Configs["DisableChatClamping"] = value
-                    ForeverQoL.Interface.Social:UpdateChat()
+                    ForeverQoL.Social.Chat:UpdateChat()
                 end,
             },
         },
-        10, -100, HEIGHT - 10, false,
+        10, -100, CONST_HEIGHT - 10, false,
         textTemplate, dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
     )
 
@@ -243,81 +476,6 @@ function ForeverQoLGui:Init()
                 set = function(_, _, value)
                     ForeverQoLData.Configs["FasterAutoLoot"] = value
                 end,
-            },
-            {
-                type = "blank"
-            },
-            { -- Scale
-                type = "label",
-                get = function() return "Roleplay" end,
-                text_template = orangeTextTemplate
-            },
-            { -- Add Voice Line When Dead
-                type = "toggle",
-                boxfirst = true,
-                name = "Add Voice Line When Dead",
-                desc = "Voice line are from Ilgynoth, Yshaarj, Xalatath and Yoggsaron",
-                get = function() return ForeverQoLData.Configs["AddVoiceLineWhenDead"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["AddVoiceLineWhenDead"] = value
-                    if value then
-                        ForeverQoL.Gameplay.Voice:Enable()
-                    else
-                        ForeverQoL.Gameplay.Voice:Disable()
-                    end
-                end,
-            },
-            { -- Print Quote From Thich Nhat Hanh
-                type = "toggle",
-                boxfirst = true,
-                name = "Print Quote From Thich Nhat Hanh",
-                get = function() return ForeverQoLData.Configs["PrintQuoteFromThichNhatHanh"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["PrintQuoteFromThichNhatHanh"] = value
-                    if value then
-                        ForeverQoL.Gameplay.ThichNhatHanh:Enable()
-                    else
-                        ForeverQoL.Gameplay.ThichNhatHanh:Disable()
-                    end
-                end,
-            },
-            {
-                type = "blank"
-            },
-            { -- Scale
-                type = "label",
-                get = function() return "Battle Pet" end,
-                text_template = orangeTextTemplate
-            },
-            { -- Keep A Battle Pet Summoned
-                type = "toggle",
-                boxfirst = true,
-                name = "Keep A Battle Pet Summoned",
-                get = function() return ForeverQoLData.Configs["KeepABattlePetSummoned"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["KeepABattlePetSummoned"] = value
-                    if value then
-                        ForeverQoL.Gameplay.BattlePet:Enable()
-                    else
-                        ForeverQoL.Gameplay.BattlePet:Disable()
-                    end
-                end,
-            },
-            { -- Battle Pet Name To Summon
-                type = "textentry",
-                name = "Pet Name",
-                desc = "The name of the battle pet to be summoned",
-                width = 130,
-                get = function() return ForeverQoLData.Configs["BattlePetNameToSummon"] or "" end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["BattlePetNameToSummon"] = value
-                end,
-                hooks = {
-                    OnEditFocusLost = function(self)
-                        self:SetText(ForeverQoLData.Configs["BattlePetNameToSummon"])
-                    end,
-                    OnEnterPressed = function(self) return end
-                },
             },
             {
                 type = "breakline"
@@ -385,32 +543,13 @@ function ForeverQoLGui:Init()
                     ForeverQoLData.Configs["LimitSellToTwelveItems"] = value
                 end,
             },
-            { -- Add Item To The Sell List
-                type = "textentry",
-                id = "AutoSellAddItem",
-                name = "Add Item",
-                desc = "Drag an item from your bags onto this box, or type an item ID, or shift-click an item into it",
-                width = 160,
-                get = function() return "" end,
-                set = function(_, _, value)
-                    if value == "" then return end
-                    ForeverQoL.Gameplay.Vendor.Items.Add(value)
+            { -- Manage The Sell List
+                type = "execute",
+                name = "Manage My Sell List",
+                desc = "Open the list of items sold on sight, to add to it or take from it",
+                func = function()
+                    GetItemListWindow(ForeverQoL.Gameplay.Merchant.Items, "Auto Sell List", "ForeverQoLSellListWindow"):Toggle()
                 end,
-                hooks = {
-                    OnEditFocusLost = function(self)
-                        self:SetText("")
-                    end,
-                    OnEnterPressed = function(self)
-                        self:SetText("")
-                    end
-                },
-            },
-            { -- Remove Item From The Sell List
-                type = "select",
-                name = "Remove Item",
-                desc = "Pick an item to take it back off the sell list",
-                get = function() return 0 end,
-                values = function() return ForeverQoL.Gameplay.Vendor.Items.GetOptions() end,
             },
             {
                 type = "blank"
@@ -420,21 +559,21 @@ function ForeverQoLGui:Init()
                 get = function() return "Bank" end,
                 text_template = orangeTextTemplate
             },
-            { -- Deposit Excess Gold To Warbank
+            { -- Deposit Excess Gold To Bank
                 type = "toggle",
                 boxfirst = true,
-                name = "Deposit Excess Gold To Warbank",
-                desc = "When a bank with warband access is opened, move everything above the amount below",
-                get = function() return ForeverQoLData.Configs["DepositExcessGoldToWarbank"] end,
+                name = "Deposit Excess Gold To Bank",
+                desc = "When the bank is opened, move everything above the amount below",
+                get = function() return ForeverQoLData.Configs["DepositExcessGoldToBank"] end,
                 set = function(_, _, value)
-                    ForeverQoLData.Configs["DepositExcessGoldToWarbank"] = value
+                    ForeverQoLData.Configs["DepositExcessGoldToBank"] = value
                 end,
             },
             { -- Keep Gold Amount
                 type = "textentry",
                 name = "Gold To Keep",
                 desc = "How much gold stays on the character, silver and copper are never moved",
-                width = 90,
+                CONST_WIDTH = 90,
                 get = function() return ForeverQoLData.Configs["KeepGoldAmount"] or "" end,
                 set = function(_, _, value)
                     local amount = tonumber(value)
@@ -461,41 +600,19 @@ function ForeverQoLGui:Init()
                     ForeverQoLData.Configs["DepositListedItemsToBank"] = value
                 end,
             },
-            { -- Add Item To The Deposit List
-                type = "textentry",
-                id = "AutoDepositAddItem",
-                name = "Add Item",
-                desc = "Drag an item from your bags onto this box, or type an item ID, or shift-click an item into it",
-                width = 160,
-                get = function() return "" end,
-                set = function(_, _, value)
-                    if value == "" then return end
-                    ForeverQoL.Gameplay.Bank.Items.Add(value)
+            { -- Manage The Deposit List
+                type = "execute",
+                name = "Manage My Deposit List",
+                desc = "Open the list of items sent to the bank on sight, to add to it or take from it",
+                func = function()
+                    GetItemListWindow(ForeverQoL.Gameplay.Bank.Items, "Auto Deposit List", "ForeverQoLDepositListWindow"):Toggle()
                 end,
-                hooks = {
-                    OnEditFocusLost = function(self)
-                        self:SetText("")
-                    end,
-                    OnEnterPressed = function(self)
-                        self:SetText("")
-                    end
-                },
-            },
-            { -- Remove Item From The Deposit List
-                type = "select",
-                name = "Remove Item",
-                desc = "Pick an item to take it back off the deposit list",
-                get = function() return 0 end,
-                values = function() return ForeverQoL.Gameplay.Bank.Items.GetOptions() end,
             },
 
         },
-        10, -100, HEIGHT - 10, false,
+        10, -100, CONST_HEIGHT - 10, false,
         textTemplate, dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
     )
-
-    ForeverQoL.Gameplay.Vendor.Items.EnableDrop(gameplayFrame:GetWidgetById("AutoSellAddItem"))
-    ForeverQoL.Gameplay.Bank.Items.EnableDrop(gameplayFrame:GetWidgetById("AutoDepositAddItem"))
 
     -- Interface
     DF:BuildMenu(tabsContainer:GetTabFrameByName("Interface"),
@@ -504,23 +621,6 @@ function ForeverQoLGui:Init()
                 type = "label",
                 get = function() return "General" end,
                 text_template = orangeTextTemplate
-            },
-            { -- Disable Damage Text
-                type = "select",
-                name = "Floating Combat Text",
-                desc = "Covers damage, healing, periodic ticks and pet damage",
-                get = function() return ForeverQoLData.Configs["FloatingCombatTextVisibility"] end,
-                values = function() return ForeverQoL.Interface.GetCombatTextOptions() end,
-            },
-            { -- Show Recipe Icons
-                type = "toggle",
-                boxfirst = true,
-                name = "Show Recipe Icons",
-                desc = "Put the item icon back on each row of the profession recipe list",
-                get = function() return ForeverQoLData.Configs["ShowRecipeIcons"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["ShowRecipeIcons"] = value
-                end,
             },
             { -- Tint Known At Merchant
                 type = "toggle",
@@ -532,6 +632,50 @@ function ForeverQoLGui:Init()
                     ForeverQoLData.Configs["TintKnownAtMerchant"] = value
                 end,
             },
+            { -- Tint Unusable Red
+                type = "toggle",
+                boxfirst = true,
+                name = "Tint Unusable Items Red",
+                desc = "Redden what this character can never wear, at merchants and in the item list windows. A level requirement does not count, it only says not yet",
+                get = function() return ForeverQoLData.Configs["TintUnusableRed"] end,
+                set = function(_, _, value)
+                    ForeverQoLData.Configs["TintUnusableRed"] = value
+                end,
+            },
+            {
+                type = "blank"
+            },
+            { -- Quests
+                type = "label",
+                get = function() return "Quests" end,
+                text_template = orangeTextTemplate
+            },
+            { -- Untrack Completed Quests
+                type = "toggle",
+                boxfirst = true,
+                name = "Untrack Completed Quests",
+                desc = "Drop a quest from the tracker as soon as it is ready for turn-in",
+                get = function() return ForeverQoLData.Configs["UntrackCompletedQuests"] end,
+                set = function(_, _, value)
+                    ForeverQoLData.Configs["UntrackCompletedQuests"] = value
+                    ForeverQoL.Interface.Quests:UntrackCompleted()
+                end,
+            },
+            {
+                type = "blank"
+            },
+            { -- Visibility
+                type = "label",
+                get = function() return "Visibility" end,
+                text_template = orangeTextTemplate
+            },
+            { -- Disable Damage Text
+                type = "select",
+                name = "Floating Combat Text",
+                desc = "Covers damage, healing, periodic ticks and pet damage",
+                get = function() return ForeverQoLData.Configs["FloatingCombatTextVisibility"] end,
+                values = function() return ForeverQoL.Interface.Visibility:GetCombatTextOptions() end,
+            },
             { -- Hide Tooltip While In Combat
                 type = "toggle",
                 boxfirst = true,
@@ -542,46 +686,57 @@ function ForeverQoLGui:Init()
                     ForeverQoLData.Configs["HideTooltipWhileInCombat"] = value
                 end,
             },
-            {
-                type = "blank"
-            },
-            { -- Bars
-                type = "label",
-                get = function() return "Bars" end,
-                text_template = orangeTextTemplate
-            },
             { -- Bag Bar Visibility
                 type = "select",
                 name = "Bag Bar Visibility",
                 desc = "The bag slots bar next to the micro menu",
                 get = function() return ForeverQoLData.Configs["BagBarVisibility"] end,
-                values = function() return ForeverQoL.Interface.Bars.GetVisibilityOptions("BagBarVisibility") end,
+                values = function() return ForeverQoL.Interface.Visibility:GetVisibilityOptions("BagBarVisibility") end,
             },
             { -- Micro Menu Visibility
                 type = "select",
                 name = "Micro Menu Visibility",
                 desc = "The row of menu buttons, character sheet through game menu",
                 get = function() return ForeverQoLData.Configs["MicroMenuVisibility"] end,
-                values = function() return ForeverQoL.Interface.Bars.GetVisibilityOptions("MicroMenuVisibility") end,
+                values = function() return ForeverQoL.Interface.Visibility:GetVisibilityOptions("MicroMenuVisibility") end,
             },
             { -- Status Bar Visibility
                 type = "select",
                 name = "Status Bar Visibility",
                 desc = "The experience and reputation bar",
                 get = function() return ForeverQoLData.Configs["StatusBarVisibility"] end,
-                values = function() return ForeverQoL.Interface.Bars.GetVisibilityOptions("StatusBarVisibility") end,
+                values = function() return ForeverQoL.Interface.Visibility:GetVisibilityOptions("StatusBarVisibility") end,
+            },
+            {
+                type = "blank"
+            },
+            { -- Other Addons
+                type = "label",
+                get = function() return "Other Addons" end,
+                text_template = orangeTextTemplate
+            },
+            { -- Grid2
+                type = "toggle",
+                boxfirst = true,
+                name = "Restore Grid2 Positions",
+                desc = "Restore Grid2's saved positions when entering the world or changing UI scale or display size. Requires Grid2.",
+                get = function() return ForeverQoLData.Configs["RestoreGrid2Positions"] end,
+                set = function(_, _, value)
+                    ForeverQoLData.Configs["RestoreGrid2Positions"] = value
+                    ForeverQoL.Interface.OtherAddons:UpdateGrid2()
+                end,
             },
         },
-        10, -100, HEIGHT - 10, false,
+        10, -100, CONST_HEIGHT - 10, false,
         textTemplate, dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
     )
 end
 
 function ForeverQoLGui:ToggleOptions()
-    if ForeverQoLGui:IsShown() then
-        ForeverQoLGui:Hide()
+    if self:IsShown() then
+        self:Hide()
     else
-        ForeverQoLGui:Show()
+        self:Show()
     end
 end
 

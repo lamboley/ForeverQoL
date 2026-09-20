@@ -1,14 +1,3 @@
 # Environment
 .env
 
-# Editor
-.vscode/
-
-# AI
-plans/
-.claude
-
-# Backup
-config/
-# Build output
-/bin/

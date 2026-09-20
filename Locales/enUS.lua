@@ -1,4 +1,3 @@
----@class ForeverQoL
 local ForeverQoL = select(2, ...)
 
 local L = setmetatable({}, { __index = function(t, k)

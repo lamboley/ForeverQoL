@@ -1,15 +1,11 @@
----@class ForeverQoL
 local ForeverQoL = select(2, ...)
 
--- WoW API
-local GetNumLootItems = GetNumLootItems
-local LootSlot = LootSlot
-
-local Gameplay = ForeverQoL.CreateModule("Gameplay", "LOOT_READY")
+local Gameplay = CreateFrame("Frame", "ForeverQoL_Gameplay")
 
 local mouselookInitialized = false
+local lootFrameAlpha
 
-function Gameplay:PreEnable()
+function Gameplay:Init()
     if ForeverQoLData.Configs["DisableRightClickTargeting"] and not mouselookInitialized then
         local statusMouseover = CreateFrame('frame', nil, nil, 'SecureHandlerStateTemplate')
         RegisterStateDriver(statusMouseover, 'mouseunitexist', '[@mouseover,exists,combat]1;0')
@@ -33,31 +29,26 @@ function Gameplay:PreEnable()
 
         mouselookInitialized = true
     end
+
+    self:RegisterEvent("LOOT_READY")
+    self:SetScript("OnEvent", self.UpdateAutoLoot)
+    self.Merchant:Init()
+    self.Bank:Init()
 end
 
-function Gameplay:OnEvent(event, ...)
+function Gameplay:UpdateAutoLoot()
     if ForeverQoLData.Configs["FasterAutoLoot"] then
+        if lootFrameAlpha == nil then
+            lootFrameAlpha = LootFrame:GetAlpha()
+        end
         LootFrame:SetAlpha(0)
         for i = 1, GetNumLootItems() do
             LootSlot(i)
         end
+    elseif lootFrameAlpha ~= nil then
+        LootFrame:SetAlpha(lootFrameAlpha)
+        lootFrameAlpha = nil
     end
-end
-
-function Gameplay:PostEnable()
-    self.Vendor:Enable()
-    self.Bank:Enable()
-    self.Voice:Enable()
-    self.ThichNhatHanh:Enable()
-    self.BattlePet:Enable()
-end
-
-function Gameplay:PostDisable()
-    self.Vendor:Disable()
-    self.Bank:Disable()
-    self.Voice:Disable()
-    self.ThichNhatHanh:Disable()
-    self.BattlePet:Disable()
 end
 
 ForeverQoL.Gameplay = Gameplay

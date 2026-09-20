@@ -1,8 +1,4 @@
----@class ForeverQoL
 local ForeverQoL = select(2, ...)
-
--- WoW API
-local GetLocale = GetLocale
 
 local L = ForeverQoL.L
 

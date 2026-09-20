@@ -2,11 +2,6 @@
 
 ## Code Standards
 
-**Powershell:**
-
-- Follow the [PoshCode PowerShell Best Practices and Style Guide](https://github.com/poshcode/powershellpracticeandstyle).
-- Use [PSScriptAnalyzer](https://learn.microsoft.com/fr-fr/powershell/utility-modules/psscriptanalyzer/overview?view=ps-modules) for code formating.
-
 **Lua:**
 
 - Follow the [Olivine Labs Lua Style Guide](https://github.com/Olivine-Labs/lua-style-guide).
@@ -30,12 +25,6 @@ Generally, pull requests should consist of a single logical commit.
 1. If you find a match, please try to provide as much info as you can, so that we have a better picture about what the real problem is and how to fix it ASAP.
 1. If you didn't find any tickets with a problem similar to yours then please open a [new ticket](https://github.com/lamboley/ForeverQoL/issues/new/choose).
     - Be descriptive as much as you can.
-
-## Linting
-
-There are CI check for linting the code, you'll need to run the following command before opening a pull request:
-
-- `make lint` must pass without errors
 
 ## License
 

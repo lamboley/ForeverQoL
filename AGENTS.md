@@ -23,10 +23,3 @@
 - Do not add `Co-authored-by:` in commit messages
 - Follow the code standards in [CONTRIBUTING.md](CONTRIBUTING.md). Read it before creating or modifying code.
 
-## Commands
-
-Run `make help` for all available targets. Common workflows:
-
-```
-make lint # All lint checks
-```

@@ -1,43 +1,32 @@
 ## Interface: 16001
 ## Author: ForeverQoL
 ## Title: ForeverQoL
-## Notes: Provide quality of life improvements to enhance your World of Warcraft: Forever experience
+## Notes: Provide quality of life improvements to enhance your World of Warcraft: Forever experience.
 ## Version: @project-version@
 ## SavedVariables: ForeverQoLData
 
-## Init
-Init.lua
+Libs\Load.xml
 
-## Libs
-Libs\load.xml
-
-## Medias
-Core\Medias.lua
-
-## Locales
 Locales\enUS.lua
 Locales\frFR.lua
 
-## Core
-Core\Functions.lua
-Core\Commands.lua
-Core\Events.lua
-Core\Gui.lua
+ForeverQoL_DefaultSettings.lua
+ForeverQoL_DataTables.lua
+ForeverQoL_Utils.lua
+ForeverQoL_LibSharedMedia.lua
+ForeverQoL_SlashCmd.lua
+ForeverQoL_Gui.lua
+ForeverQoL.lua
 
-## Modules
-Modules\System\System.lua
-Modules\System\Graphics.lua
-Modules\System\Audio.lua
-
-Modules\Interface\Interface.lua
-Modules\Interface\Social.lua
-Modules\Interface\Bars.lua
-Modules\Interface\Known.lua
-Modules\Interface\Recipes.lua
-
-Modules\Gameplay\Gameplay.lua
-Modules\Gameplay\Vendor.lua
-Modules\Gameplay\Bank.lua
-Modules\Gameplay\Voice.lua
-Modules\Gameplay\ThichNhatHanh.lua
-Modules\Gameplay\BattlePet.lua
+ForeverQoL_System.lua
+ForeverQoL_System_Graphics.lua
+ForeverQoL_System_Audio.lua
+ForeverQoL_Social.lua
+ForeverQoL_Social_Chat.lua
+ForeverQoL_Interface.lua
+ForeverQoL_Interface_Quests.lua
+ForeverQoL_Interface_Visibility.lua
+ForeverQoL_Interface_OtherAddons.lua
+ForeverQoL_Gameplay.lua
+ForeverQoL_Gameplay_Merchant.lua
+ForeverQoL_Gameplay_Bank.lua
