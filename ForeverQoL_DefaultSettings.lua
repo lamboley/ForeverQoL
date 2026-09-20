@@ -17,6 +17,7 @@ ForeverQoL.DefaultSettings = {
     -- Gameplay - General
     DisableRightClickTargeting = true,
     FasterAutoLoot = true,
+    AutoGroupChat = true,
 
     -- Gameplay - Merchant
     RepairGearAutomatically = true,
@@ -25,13 +26,12 @@ ForeverQoL.DefaultSettings = {
     KeepGreyGear = true,
     SellListedItemsAutomatically = true,
     AutoSellItemList = {
-        252032, -- Red Delicious Stormapple
-        252030, -- Pungent Skycheddar
-        252028, -- Fresh Gustberry Bread
-        267464, -- Galeswept Forestshroom
-        252022, -- Galestrider Jerky
+        [252032] = true, -- Red Delicious Stormapple
+        [252030] = true, -- Pungent Skycheddar
+        [252028] = true, -- Fresh Gustberry Bread
+        [267464] = true, -- Galeswept Forestshroom
+        [252022] = true, -- Galestrider Jerky
     },
-    LimitSellToTwelveItems = true,
 
     -- Gameplay - Bank
     DepositExcessGoldToBank = true,
@@ -41,7 +41,6 @@ ForeverQoL.DefaultSettings = {
 
     -- Interface - General
     TintKnownAtMerchant = true,
-    TintUnusableRed = true,
 
     -- Interface - Quests
     UntrackCompletedQuests = true,
@@ -63,7 +62,14 @@ function ForeverQoL:CreateDefaultSettings()
 
     for key, default in pairs(self.DefaultSettings) do
         if ForeverQoLData.Configs[key] == nil then
-            ForeverQoLData.Configs[key] = default
+            if type(default) == "table" then
+                ForeverQoLData.Configs[key] = {}
+                for index, value in pairs(default) do
+                    ForeverQoLData.Configs[key][index] = value
+                end
+            else
+                ForeverQoLData.Configs[key] = default
+            end
         end
     end
 end

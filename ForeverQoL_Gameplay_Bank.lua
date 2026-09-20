@@ -2,13 +2,9 @@ local ForeverQoL = select(2, ...)
 
 local Bank = CreateFrame("Frame", "ForeverQoL_Bank")
 
--- TODO: Probably hide item in auto sell list if they are present in bag
-
 local CONST_COPPER_PER_GOLD = 10000
 -- The character's own bank. This client has no warband bank, so Enum.BankType.Account is out.
 local CONST_CHARACTER_BANK = Enum.BankType.Character
-
-Bank.Items = ForeverQoL.CreateItemList("AutoDepositItemList", "auto deposit list")
 
 ---Using a bag item while a bank is open deposits it into whichever tab is being viewed.
 function Bank:DepositListedItems()
@@ -22,7 +18,8 @@ function Bank:DepositListedItems()
         if numSlots then
             for slot = 1, numSlots do
                 local itemID = C_Container.GetContainerItemID(bagID, slot)
-                if itemID and self.Items:Contains(itemID) then
+                if itemID and ForeverQoLData.Configs.AutoDepositItemList[itemID]
+                    and not ForeverQoLData.Configs.AutoSellItemList[itemID] then
                     local containerInfo = C_Container.GetContainerItemInfo(bagID, slot)
                     if containerInfo and not containerInfo.isLocked then
                         C_Container.UseContainerItem(bagID, slot)

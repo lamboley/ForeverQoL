@@ -1,8 +1,10 @@
 local ForeverQoL = select(2, ...)
 
 function ForeverQoL:CreateDataTables()
-
-    local CONST_LEATHER, CONST_MAIL, CONST_PLATE, CONST_SHIELD = 2, 3, 4, 6
+    local CONST_LEATHER = 2
+    local CONST_MAIL = 3
+    local CONST_PLATE = 4
+    local CONST_SHIELD = 6
 
     -- Identify armor a class cannot wear so it can be tinted red.
     self.WearableArmor = {

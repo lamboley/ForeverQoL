@@ -88,6 +88,8 @@ globals = {
 	"GetPhysicalScreenSize",
 	"GetSpecialization",
 	"GetSpecializationRole",
+    "IsInGroup",
+    "IsInRaid",
 	"LootSlot",
 	"MerchantFrame_UpdateMerchantInfo",
 	"MouselookStart",

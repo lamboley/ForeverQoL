@@ -1,11 +1,16 @@
+.DEFAULT_GOAL := help
+
 ##@ Lint
 
 .PHONY: lint-lua
-lint: lint-lua
+lint-lua:
 	luacheck .
+
+.PHONY: lint
+lint: lint-lua
 
 ##@ Helpers
 
-.PHONY: clean
-clean: ## Clean up build and test artifacts.
-	scripts/clean.sh
+.PHONY: help
+help:
+	Scripts/help.bat

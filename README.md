@@ -12,11 +12,32 @@ ForeverQoL is a World of Warcraft: Forever add-on to bring quality of life tweak
 
 ## Features
 
-- __Graphics:__ Custom scale, max out camera distance.
-- __Social:__ Un-Clamp chat window, set Editbox at the top.
-- __Interface:__ Allow change to scale of ObjectiveTrackerFrame, Choose when to collapse ObjectiveTrackerFrame, Show/Hide combat text.
-- __Gameplay:__ Add rp voice, disable right click targeting in combat.
-- __Merchant:__ Automatic gear repair, automatic junk selling.
+**System:**
+
+- Allow to max out the camera distance.
+- Allow to configure a custom scale for ^perfect pixel alignement.
+- Allow to mut annoying sounds.
+
+**Social:**
+
+- Allow to move the chat bar on the edge of the screen.
+- Set the Editbox at the top of the chat window.
+
+**Gameplay:**
+
+- Disable right click targeting.
+- Allow faster auto-loot.
+- Allow to repair gear automatically.
+- Allow to sell junk and custom items automatically.
+- Allow to deposit gold in bank automatically.
+
+**Interface:**
+
+- Change color of know recipe/items to green.
+- Tint un-usable item icons to red.
+- Untrack completed quests automatically.
+- Manage visibility of multiple UI elements.
+- Manage interaction with other add-ons.
 
 ## Feedback
 

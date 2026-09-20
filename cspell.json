@@ -1,8 +1,9 @@
 {
     "version": "0.2",
-    "language": "en, fr",
+    "language": "en-US, en-GB, fr, en",
+    "caseSensitive": false,
     "allowCompoundWords": true,
     "words": [
-        "ALPHAKEY",
+        "luacheck"
     ]
 }

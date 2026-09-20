@@ -2,8 +2,6 @@ local ForeverQoL = select(2, ...)
 
 local Merchant = CreateFrame("Frame", "ForeverQoL_Merchant")
 
-Merchant.Items = ForeverQoL.CreateItemList("AutoSellItemList", "auto sell list")
-
 local function isGear(itemID)
     local _, _, _, equipLoc = C_Item.GetItemInfoInstant(itemID)
     return type(equipLoc) == "string" and equipLoc:find("INVTYPE_", 1, true) == 1 and equipLoc:find("INVTYPE_NON_EQUIP", 1, true) ~= 1
@@ -22,7 +20,7 @@ local function sellItems()
                         local isGear = ForeverQoLData.Configs["KeepGreyGear"] and containerInfo.quality == 0 and isGear(itemID)
                         local isJunk = containerInfo.quality == 0 and not isGear
 
-                        if isJunk or Merchant.Items:Contains(itemID) then
+                        if isJunk or ForeverQoLData.Configs.AutoSellItemList[itemID] then
                             C_Container.UseContainerItem(bagID, slot)
                         end
                     end

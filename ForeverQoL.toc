@@ -11,7 +11,7 @@ Locales\enUS.lua
 Locales\frFR.lua
 
 ForeverQoL_DefaultSettings.lua
-ForeverQoL_DataTables.lua
+ForeverQoL_Data.lua
 ForeverQoL_Utils.lua
 ForeverQoL_LibSharedMedia.lua
 ForeverQoL_SlashCmd.lua
