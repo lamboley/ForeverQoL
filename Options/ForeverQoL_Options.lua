@@ -11,14 +11,14 @@ local sliderTemplate = DF:GetTemplate("slider", "OPTIONS_SLIDER_TEMPLATE")
 local buttonTemplate = DF:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE")
 local orangeTextTemplate = DF:GetTemplate("font", "ORANGE_FONT_TEMPLATE")
 
-local ForeverQoLGui = DF:CreateSimplePanel(UIParent, CONST_WIDTH, CONST_HEIGHT, "Forever QoL", "ForeverQoLGui", {UseScaleBar = true})
-ForeverQoLGui.Title:SetAlpha(.75)
-ForeverQoLGui:SetFrameStrata("DIALOG")
-ForeverQoLGui:SetToplevel(true)
-DF:ApplyStandardBackdrop(ForeverQoLGui)
+local ForeverQoLOptions = DF:CreateSimplePanel(UIParent, CONST_WIDTH, CONST_HEIGHT, "Forever QoL", "ForeverQoLOptions", {UseScaleBar = true})
+ForeverQoLOptions.Title:SetAlpha(.75)
+ForeverQoLOptions:SetFrameStrata("DIALOG")
+ForeverQoLOptions:SetToplevel(true)
+DF:ApplyStandardBackdrop(ForeverQoLOptions)
 
-local versionText = DF:CreateLabel (ForeverQoLGui, "0.0.1", 11, "white")
-versionText:SetPoint ("topright", ForeverQoLGui, "topright", -25, -7)
+local versionText = DF:CreateLabel (ForeverQoLOptions, "0.0.1", 11, "white")
+versionText:SetPoint ("topright", ForeverQoLOptions, "topright", -25, -7)
 versionText:SetAlpha(0.75)
 
 local CONST_ICON_SIZE, CONST_ICON_PAD = 38, 4
@@ -88,7 +88,7 @@ local function GetItemListWindow(list, title, frameName)
 	-- Beside the options panel rather than on top of it. Only at creation, so dragging it
 	-- somewhere else afterwards sticks.
 	window:ClearAllPoints()
-	window:SetPoint("topleft", ForeverQoLGui, "topright", 8, 0)
+	window:SetPoint("topleft", ForeverQoLOptions, "topright", 8, 0)
 	window:Hide()
 
 	local bagScroll, listScroll
@@ -180,11 +180,7 @@ local function GetItemListWindow(list, title, frameName)
 							slot:SetBackdropBorderColor(0, 0, 0, 0.5)
 						end
 
-						if ForeverQoLData.Configs["TintUnusableRed"] and ForeverQoL.IsUnusable(entry.id) then
-							slot.icon:SetVertexColor(1, 0.3, 0.3)
-						else
-							slot.icon:SetVertexColor(1, 1, 1)
-						end
+						slot.icon:SetVertexColor(1, 1, 1)
 
 						slot:Show()
 					else
@@ -280,8 +276,8 @@ local function GetItemListWindow(list, title, frameName)
 	return window
 end
 
-function ForeverQoLGui:Init()
-    local tabsContainer = DF:CreateTabContainer(self, "Forever QoL", "ForeverQoLGuiTabsContainers",
+function ForeverQoLOptions:Init()
+    local tabsContainer = DF:CreateTabContainer(self, "Forever QoL", "ForeverQoLOptionsTabsContainers",
         {
             {
                 name = "System",
@@ -732,7 +728,7 @@ function ForeverQoLGui:Init()
     )
 end
 
-function ForeverQoLGui:ToggleOptions()
+function ForeverQoLOptions:ToggleOptions()
     if self:IsShown() then
         self:Hide()
     else
@@ -740,4 +736,4 @@ function ForeverQoLGui:ToggleOptions()
     end
 end
 
-ForeverQoL.ForeverQoLGui = ForeverQoLGui
+ForeverQoL.ForeverQoLOptions = ForeverQoLOptions

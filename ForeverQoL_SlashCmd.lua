@@ -8,7 +8,7 @@ SlashCmdList["ForeverQoL"] = function(msg)
         print("|cff00ff00/fql|r - Toggle options menu")
         print("|cff00ff00/fql help|r - Show this help message")
     else
-        ForeverQoL.ForeverQoLGui:ToggleOptions()
+        ForeverQoL.ForeverQoLOptions:ToggleOptions()
     end
 end
 

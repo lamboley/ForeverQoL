@@ -3,9 +3,11 @@
 
 [![License](https://img.shields.io/github/license/lamboley/ForeverQoL)](LICENSE)
 [![CI](https://github.com/lamboley/ForeverQoL/actions/workflows/ci.yml/badge.svg)](https://github.com/lamboley/ForeverQoL/actions/workflows/ci.yml)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/14730/badge)](https://www.bestpractices.dev/projects/14730)
+[![Trivy Security Scan](https://github.com/lamboley/womodoro/actions/workflows/trivy-scan.yml/badge.svg)](https://github.com/lamboley/womodoro/actions/workflows/trivy-scan.yml)
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/lamboley/ForeverQoL?sort=semver)
 
-Quality of life tweaks for World of Warcraft: Forever.
+ForeverQoL is a World of Warcraft: Forever add-on to bring quality of life tweaks.
 
 ## Feedback
 

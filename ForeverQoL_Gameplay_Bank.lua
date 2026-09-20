@@ -2,6 +2,8 @@ local ForeverQoL = select(2, ...)
 
 local Bank = CreateFrame("Frame", "ForeverQoL_Bank")
 
+-- TODO: Probably hide item in auto sell list if they are present in bag
+
 local CONST_COPPER_PER_GOLD = 10000
 -- The character's own bank. This client has no warband bank, so Enum.BankType.Account is out.
 local CONST_CHARACTER_BANK = Enum.BankType.Character

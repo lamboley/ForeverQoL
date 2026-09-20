@@ -24,7 +24,13 @@ ForeverQoL.DefaultSettings = {
     SellJunkAutomatically = true,
     KeepGreyGear = true,
     SellListedItemsAutomatically = true,
-    AutoSellItemList = {},
+    AutoSellItemList = {
+        252032, -- Red Delicious Stormapple
+        252030, -- Pungent Skycheddar
+        252028, -- Fresh Gustberry Bread
+        267464, -- Galeswept Forestshroom
+        252022, -- Galestrider Jerky
+    },
     LimitSellToTwelveItems = true,
 
     -- Gameplay - Bank

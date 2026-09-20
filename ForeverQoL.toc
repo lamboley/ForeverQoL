@@ -15,7 +15,6 @@ ForeverQoL_DataTables.lua
 ForeverQoL_Utils.lua
 ForeverQoL_LibSharedMedia.lua
 ForeverQoL_SlashCmd.lua
-ForeverQoL_Gui.lua
 ForeverQoL.lua
 
 ForeverQoL_System.lua
@@ -30,3 +29,10 @@ ForeverQoL_Interface_OtherAddons.lua
 ForeverQoL_Gameplay.lua
 ForeverQoL_Gameplay_Merchant.lua
 ForeverQoL_Gameplay_Bank.lua
+
+ForeverQoL_API.lua
+
+Options\ForeverQoL_Options_Utils.lua
+Options\ForeverQoL_Options.lua
+Options\ForeverQoL_Options_AutoSellList.lua
+Options\ForeverQoL_Options_AutoDepositList.lua

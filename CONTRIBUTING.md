@@ -7,11 +7,6 @@
 - Follow the [Olivine Labs Lua Style Guide](https://github.com/Olivine-Labs/lua-style-guide).
 - Use [Luacheck](https://github.com/lunarmodules/luacheck) for static code check.
 
-## Setup Your Dev Environment
-
-1. Clone the repository with `git clone https://github.com/lamboley/ForeverQoL.git`
-1. Create the symlinks with `mklink /d "C:\Program Files (x86)\World of Warcraft\_classic_beta_\Interface\Addons\ForeverQoL" "C:\Users\USER\ForeverQoL"`
-
 ## Pull Requests
 
 PRs should generally address only 1 issue at a time.

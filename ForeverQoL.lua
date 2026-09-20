@@ -15,7 +15,7 @@ frame:SetScript("OnEvent", function(_, event, ...)
         ForeverQoL:CreateDefaultSettings()
         ForeverQoL:CreateDataTables()
     elseif event == "PLAYER_LOGIN" then
-        ForeverQoL.ForeverQoLGui:Init()
+        ForeverQoL.ForeverQoLOptions:Init()
 
         ForeverQoL.System:Init()
         ForeverQoL.Social:Init()

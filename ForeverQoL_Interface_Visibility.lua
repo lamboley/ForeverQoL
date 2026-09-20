@@ -8,7 +8,6 @@ local CONST_MOUSEOVER_INTERVAL = 0.05
 local hookedFrames = {}
 local mouseoverFrames = {}
 local sinceLastCheck = 0
-local tooltipHookRegistered = false
 
 local function UpdateAlpha(frame)
 	local alpha = frame:IsMouseOver(CONST_MOUSEOVER_PADDING, -CONST_MOUSEOVER_PADDING, -CONST_MOUSEOVER_PADDING, CONST_MOUSEOVER_PADDING) and 1 or 0
@@ -136,26 +135,26 @@ end
 
 function Visibility:OnEvent(event)
     self:UpdateCombatText()
+
     if event == "PLAYER_ENTERING_WORLD" then
         self:UpdateVisibility()
-    end
+	end
 end
 
 function Visibility:Init()
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
     self:SetScript("OnEvent", self.OnEvent)
+
     self:UpdateVisibility()
     self:UpdateCombatText()
 
-    if ForeverQoLData.Configs["HideTooltipWhileInCombat"] and not tooltipHookRegistered then
+    if ForeverQoLData.Configs["HideTooltipWhileInCombat"] then
         hooksecurefunc(GameTooltip, 'Show', function(self)
             if UnitAffectingCombat('player') then
                 self:Hide()
             end
         end)
-
-        tooltipHookRegistered = true
     end
 end
 

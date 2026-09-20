@@ -3,30 +3,6 @@ local ForeverQoL = select(2, ...)
 local CONST_ARMOR_CLASS = 4
 local CONST_LEATHER, CONST_MAIL, CONST_PLATE, CONST_SHIELD = 2, 3, 4, 6
 
----True when the character can never wear the item because of its armour type.
----Read from the item itself rather than from tooltip colour, which this client does not paint.
----Only armour: a class restriction such as "Classes: Warrior" is not reported by any API here,
----and a level requirement is none of this function's business, it says "not yet", not "never".
-function ForeverQoL.IsUnusable(item)
-	local _, _, _, _, _, classID, subclassID = C_Item.GetItemInfoInstant(item)
-	if classID ~= CONST_ARMOR_CLASS then
-		return false
-	end
-
-	if subclassID ~= CONST_LEATHER and subclassID ~= CONST_MAIL and subclassID ~= CONST_PLATE and subclassID ~= CONST_SHIELD then
-		return false
-	end
-
-	local wearable = ForeverQoL.WearableArmor[select(2, UnitClass("player"))]
-
-	-- A class this table has never heard of gets the benefit of the doubt
-	if not wearable then
-		return false
-	end
-
-	return not wearable[subclassID]
-end
-
 ---Role of the current specialization, nil on a character that has none yet
 function ForeverQoL.GetRole()
 	local currentSpec = GetSpecialization()
@@ -93,7 +69,7 @@ function ForeverQoL.CreateItemList(configKey, label)
 			entries[resolvedID] = item:GetItemName()
 				or (C_Item.GetItemInfo(resolvedID))
 				or string.format("Item #%d", resolvedID)
-			ForeverQoL.Print(string.format("Added %s to the %s.", item:GetItemLink() or entries[resolvedID], label))
+			ForeverQoL.Print(string.format("Added %s to the %s (%s).", item:GetItemLink() or entries[resolvedID], label, resolvedID))
 
 			-- The name only arrives here, long after Add returned, so a window showing the
 			-- list has no other way of knowing an entry appeared
