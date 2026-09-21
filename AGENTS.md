@@ -12,6 +12,7 @@
 - Small amounts of duplication are acceptable when they improve readability.
 - Do not extract a helper solely to remove repeated code.
 - Add abstractions only when they clearly simplify the code.
+- Every time you write code, try to make it as simple as possible, as small as possible, as few line as possible, as minimal as possible without adding any helper.
 
 ## Contributor Guidelines
 
