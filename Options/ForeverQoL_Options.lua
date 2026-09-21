@@ -51,20 +51,20 @@ function ForeverQoLOptions:Init()
     tabsContainer:SetPoint("CENTER", self, "CENTER", 0, 0)
 
     for _, frame in ipairs(tabsContainer.AllFrames) do
-		local frameBackgroundTexture = frame:CreateTexture(nil, "artwork")
-		frameBackgroundTexture:SetPoint("topleft", frame, "topleft", 1, -85)
-		frameBackgroundTexture:SetPoint("bottomright", frame, "bottomright", -1, 20)
-		frameBackgroundTexture:SetColorTexture (0.2317647, 0.2317647, 0.2317647)
-		frameBackgroundTexture:SetVertexColor (0.27, 0.27, 0.27)
-		frameBackgroundTexture:SetAlpha (0.3)
+        local frameBackgroundTexture = frame:CreateTexture(nil, "artwork")
+        frameBackgroundTexture:SetPoint("topleft", frame, "topleft", 1, -85)
+        frameBackgroundTexture:SetPoint("bottomright", frame, "bottomright", -1, 20)
+        frameBackgroundTexture:SetColorTexture (0.2317647, 0.2317647, 0.2317647)
+        frameBackgroundTexture:SetVertexColor (0.27, 0.27, 0.27)
+        frameBackgroundTexture:SetAlpha (0.3)
 
-		local frameBackgroundTextureTopLine = frame:CreateTexture(nil, "artwork")
-		frameBackgroundTextureTopLine:SetPoint("bottomleft", frameBackgroundTexture, "topleft", 0, 0)
-		frameBackgroundTextureTopLine:SetPoint("bottomright", frame, "topright", -1, 0)
-		frameBackgroundTextureTopLine:SetHeight(1)
-		frameBackgroundTextureTopLine:SetColorTexture(0.1215, 0.1176, 0.1294)
-		frameBackgroundTextureTopLine:SetAlpha(1)
-	end
+        local frameBackgroundTextureTopLine = frame:CreateTexture(nil, "artwork")
+        frameBackgroundTextureTopLine:SetPoint("bottomleft", frameBackgroundTexture, "topleft", 0, 0)
+        frameBackgroundTextureTopLine:SetPoint("bottomright", frame, "topright", -1, 0)
+        frameBackgroundTextureTopLine:SetHeight(1)
+        frameBackgroundTextureTopLine:SetColorTexture(0.1215, 0.1176, 0.1294)
+        frameBackgroundTextureTopLine:SetAlpha(1)
+    end
 
     -- System
     DF:BuildMenu(tabsContainer:GetTabFrameByName("System"),
@@ -144,7 +144,7 @@ function ForeverQoLOptions:Init()
             },
         },
         10, -100, CONST_OPTIONSPANEL_HEIGHT - 10, false,
-        textTemplate,  dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
+        textTemplate, dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
     )
 
     -- Social
@@ -321,7 +321,6 @@ function ForeverQoLOptions:Init()
                     self:ToggleAutoDepositList()
                 end,
             },
-
         },
         10, -100, CONST_OPTIONSPANEL_HEIGHT - 10, false,
         textTemplate, dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
