@@ -65,12 +65,16 @@ globals = {
 	"UIParent",
 
 	-- WoW Constants
+	"CANNOT_UNEQUIP_COMBAT",
 	"ITEM_COSMETIC",
+	"ITEM_DISENCHANT_NOT_DISENCHANTABLE",
 	"ITEM_QUALITY_COLORS",
 	"ITEM_PET_KNOWN",
+	"ITEM_SCRAPABLE_NOT",
 	"ITEM_SPELL_KNOWN",
 	"MERCHANT_ITEMS_PER_PAGE",
 	"NUM_BAG_SLOTS",
+	"RED_FONT_COLOR",
 	"TOY",
 
 	-- WoW Functions
@@ -92,11 +96,8 @@ globals = {
     "IsInRaid",
 	"LootSlot",
 	"MerchantFrame_UpdateMerchantInfo",
-	"MouselookStart",
-	"MouselookStop",
 	"MuteSoundFile",
 	"PlaySoundFile",
-	"RegisterStateDriver",
 	"ReloadUI",
 	"RepairAllItems",
 	"SetCVar",

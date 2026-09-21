@@ -180,16 +180,6 @@ function ForeverQoLOptions:Init()
                 get = function() return "General" end,
                 text_template = orangeTextTemplate
             },
-            { -- Disable Right Click Targeting
-                type = "toggle",
-                boxfirst = true,
-                name = "Disable Right Click Targeting",
-                desc = "Requires /reload to take effect",
-                get = function() return ForeverQoLData.Configs["DisableRightClickTargeting"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["DisableRightClickTargeting"] = value
-                end,
-            },
             { -- Auto Group Chat
                 type = "toggle",
                 boxfirst = true,
@@ -353,6 +343,16 @@ function ForeverQoLOptions:Init()
                 get = function() return ForeverQoLData.Configs["TintKnownAtMerchant"] end,
                 set = function(_, _, value)
                     ForeverQoLData.Configs["TintKnownAtMerchant"] = value
+                end,
+            },
+            { -- Tint Unusable In Bags
+                type = "toggle",
+                boxfirst = true,
+                name = "Mark Unusable Items In Red",
+                desc = "Colour items your character cannot use red in the default bags. Requires /reload to take effect",
+                get = function() return ForeverQoLData.Configs["TintUnusableInBags"] end,
+                set = function(_, _, value)
+                    ForeverQoLData.Configs["TintUnusableInBags"] = value
                 end,
             },
             {

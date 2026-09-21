@@ -7,6 +7,13 @@ local CONST_ICON_DIM = 0.9
 
 local CONST_PET_KNOWN_PREFIX = string.match(ITEM_PET_KNOWN, "[^%(]+")
 
+local CONST_CONTAINER_FRAMES = 13
+
+-- Restriction text is drawn at full red; anything darker is a different kind of message.
+local CONST_RED_CHANNEL_MAX = 0.2
+
+local hookedIcons = {}
+
 local function IsKnown(itemLink)
     local tooltipData = C_TooltipInfo.GetHyperlink(itemLink)
     if not tooltipData then
@@ -53,9 +60,122 @@ local function UpdateKnowMerchant()
     end
 end
 
+---Every restriction the game applies -- class, race, level, reputation, profession --
+---reaches the tooltip as red text, so matching the colour covers all of them at once and
+---in every locale. The three excluded lines are red without meaning the item is unusable.
+local function IsUnusable(bagID, slotID)
+    local tooltipData = C_TooltipInfo.GetBagItem(bagID, slotID)
+    if not tooltipData then
+        return false
+    end
+
+    for _, line in ipairs(tooltipData.lines) do
+        local left = line.leftColor
+        if left and left.r == 1 and left.g < CONST_RED_CHANNEL_MAX and left.b < CONST_RED_CHANNEL_MAX
+            and line.leftText ~= ITEM_SCRAPABLE_NOT
+            and line.leftText ~= CANNOT_UNEQUIP_COMBAT
+            and line.leftText ~= ITEM_DISENCHANT_NOT_DISENCHANTABLE then
+            return true
+        end
+
+        local right = line.rightColor
+        if right and right.r == 1 and right.g < CONST_RED_CHANNEL_MAX and right.b < CONST_RED_CHANNEL_MAX then
+            return true
+        end
+    end
+
+    return false
+end
+
+local function MarkUnusable(itemButton, unusable)
+    local icon = itemButton.icon
+    if not icon then
+        return
+    end
+
+    itemButton.foreverQoLUnusable = unusable
+
+    if not hookedIcons[icon] then
+        hookedIcons[icon] = true
+
+        -- Blizzard resets the icon to white whenever it redraws a slot, on paths no addon
+        -- is told about, so the tint is restored from inside SetVertexColor rather than by
+        -- chasing every update function the client happens to have.
+        local restoring = false
+        hooksecurefunc(icon, "SetVertexColor", function()
+            if restoring or not itemButton.foreverQoLUnusable then
+                return
+            end
+
+            restoring = true
+            icon:SetVertexColor(RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b)
+            restoring = false
+        end)
+    end
+
+    if unusable then
+        icon:SetVertexColor(RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b)
+    else
+        icon:SetVertexColor(1, 1, 1)
+    end
+end
+
+local function UpdateUnusableBags()
+    -- This client builds bag buttons dynamically and gives them no global name, so they
+    -- are reachable only through the container's own lists, and each button knows its bag.
+    local containerFrameContainer = _G["ContainerFrameContainer"]
+    if containerFrameContainer and containerFrameContainer.ContainerFrames then
+        for _, containerFrame in ipairs(containerFrameContainer.ContainerFrames) do
+            if containerFrame:IsVisible() and containerFrame.Items then
+                for _, itemButton in ipairs(containerFrame.Items) do
+                    if itemButton.GetSlotAndBagID then
+                        local slotID, bagID = itemButton:GetSlotAndBagID()
+                        local hasItem = C_Container.GetContainerItemID(bagID, slotID) ~= nil
+                        MarkUnusable(itemButton, hasItem and IsUnusable(bagID, slotID))
+                    end
+                end
+            end
+        end
+    end
+
+    -- Combined bags replace the numbered frames and are not in that list.
+    local combinedFrame = _G["ContainerFrameCombinedBags"]
+    if combinedFrame and combinedFrame:IsVisible() and combinedFrame.Items then
+        for _, itemButton in ipairs(combinedFrame.Items) do
+            if itemButton.GetSlotAndBagID then
+                local slotID, bagID = itemButton:GetSlotAndBagID()
+                local hasItem = C_Container.GetContainerItemID(bagID, slotID) ~= nil
+                MarkUnusable(itemButton, hasItem and IsUnusable(bagID, slotID))
+            end
+        end
+    end
+end
+
 function Interface:Init()
     if ForeverQoLData.Configs["TintKnownAtMerchant"] then
         hooksecurefunc("MerchantFrame_UpdateMerchantInfo", UpdateKnowMerchant)
+    end
+
+    if ForeverQoLData.Configs["TintUnusableInBags"] then
+        -- A container frame is handed a different bag as bags open and close, so the marks
+        -- need recomputing on show and not only when the contents change.
+        for frameIndex = 1, CONST_CONTAINER_FRAMES do
+            local containerFrame = _G["ContainerFrame" .. frameIndex]
+            if containerFrame then
+                containerFrame:HookScript("OnShow", UpdateUnusableBags)
+            end
+        end
+
+        local combinedFrame = _G["ContainerFrameCombinedBags"]
+        if combinedFrame then
+            combinedFrame:HookScript("OnShow", UpdateUnusableBags)
+        end
+
+        self:RegisterEvent("BAG_UPDATE_DELAYED")
+        self:RegisterEvent("PLAYER_LEVEL_UP")
+        self:SetScript("OnEvent", UpdateUnusableBags)
+
+        UpdateUnusableBags()
     end
 
     self.Quests:Init()

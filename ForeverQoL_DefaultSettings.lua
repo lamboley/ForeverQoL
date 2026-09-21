@@ -15,7 +15,6 @@ ForeverQoL.DefaultSettings = {
     DisableChatClamping = true,
 
     -- Gameplay - General
-    DisableRightClickTargeting = true,
     FasterAutoLoot = true,
     AutoGroupChat = true,
 
@@ -32,6 +31,8 @@ ForeverQoL.DefaultSettings = {
         [267464] = true, -- Galeswept Forestshroom
         [252022] = true, -- Galestrider Jerky
         [4604] = true, -- Forest Mushroom Cap
+        [2070] = true, -- Darnassian Bleu
+        [4536] = true, -- Shiny Red Apple
     },
 
     -- Gameplay - Bank
@@ -42,6 +43,7 @@ ForeverQoL.DefaultSettings = {
 
     -- Interface - General
     TintKnownAtMerchant = true,
+    TintUnusableInBags = true,
 
     -- Interface - Quests
     UntrackCompletedQuests = true,
