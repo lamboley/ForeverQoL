@@ -30,8 +30,6 @@ ForeverQoL_Gameplay.lua
 ForeverQoL_Gameplay_Merchant.lua
 ForeverQoL_Gameplay_Bank.lua
 
-ForeverQoL_API.lua
-
 Options\ForeverQoL_Options_Utils.lua
 Options\ForeverQoL_Options.lua
 Options\ForeverQoL_Options_AutoSellList.lua
