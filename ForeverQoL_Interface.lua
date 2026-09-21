@@ -26,7 +26,6 @@ local function IsKnown(itemLink)
             return true
         end
     end
-
     return false
 end
 
@@ -37,13 +36,11 @@ local function UpdateKnowMerchant()
         if not merchantButton or not itemButton then
             return
         end
-
         local page = MerchantFrame.page or 1
         local itemLink = GetMerchantItemLink(((page - 1) * MERCHANT_ITEMS_PER_PAGE) + index)
 
         if itemLink and IsKnown(itemLink) then
             local r, g, b = CONST_KNOWN_COLOR.r, CONST_KNOWN_COLOR.g, CONST_KNOWN_COLOR.b
-
             SetItemButtonNameFrameVertexColor(merchantButton, r, g, b)
             SetItemButtonSlotVertexColor(merchantButton, r, g, b)
             SetItemButtonTextureVertexColor(itemButton, r * CONST_ICON_DIM, g * CONST_ICON_DIM, b * CONST_ICON_DIM)
@@ -53,10 +50,7 @@ local function UpdateKnowMerchant()
 end
 
 local function IsRestrictionRed(color)
-    return color ~= nil
-        and color.r == 1
-        and color.g < CONST_RED_CHANNEL_MAX
-        and color.b < CONST_RED_CHANNEL_MAX
+    return color ~= nil and color.r == 1 and color.g < CONST_RED_CHANNEL_MAX and color.b < CONST_RED_CHANNEL_MAX
 end
 
 ---Every restriction the game applies -- class, race, level, reputation, profession --
@@ -72,7 +66,6 @@ local function IsUnusable(bagID, slotID)
         if IsRestrictionRed(line.rightColor) then
             return true
         end
-
         if IsRestrictionRed(line.leftColor)
             and line.leftText ~= ITEM_SCRAPABLE_NOT
             and line.leftText ~= CANNOT_UNEQUIP_COMBAT
@@ -80,7 +73,6 @@ local function IsUnusable(bagID, slotID)
             return true
         end
     end
-
     return false
 end
 
@@ -93,12 +85,10 @@ local function MarkUnusable(itemButton, unusable)
     if not icon then
         return
     end
-
     itemButton.foreverQoLUnusable = unusable
 
     if not icon.foreverQoLHooked then
         icon.foreverQoLHooked = true
-
         -- Blizzard resets the icon to white whenever it redraws a slot, on paths no addon
         -- is told about, so the tint is restored from inside SetVertexColor rather than by
         -- chasing every update function the client happens to have.
@@ -107,7 +97,6 @@ local function MarkUnusable(itemButton, unusable)
             if restoring or not itemButton.foreverQoLUnusable then
                 return
             end
-
             restoring = true
             TintRed(icon)
             restoring = false
@@ -163,16 +152,13 @@ function Interface:Init()
                 containerFrame:HookScript("OnShow", UpdateUnusableBags)
             end
         end
-
         local combinedFrame = _G["ContainerFrameCombinedBags"]
         if combinedFrame then
             combinedFrame:HookScript("OnShow", UpdateUnusableBags)
         end
-
         self:RegisterEvent("BAG_UPDATE_DELAYED")
         self:RegisterEvent("PLAYER_LEVEL_UP")
         self:SetScript("OnEvent", UpdateUnusableBags)
-
         UpdateUnusableBags()
     end
 
