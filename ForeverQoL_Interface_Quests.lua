@@ -15,7 +15,6 @@ function Quests:Init()
     if ForeverQoLData.Configs["UntrackCompletedQuests"] then
         self:RegisterEvent("QUEST_LOG_UPDATE")
         self:RegisterEvent("QUEST_WATCH_UPDATE")
-
         self:SetScript("OnEvent", self.UntrackCompleted)
     end
 end
