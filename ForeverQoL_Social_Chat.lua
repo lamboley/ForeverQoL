@@ -2,36 +2,32 @@ local ForeverQoL = select(2, ...)
 
 local Chat = CreateFrame("Frame", "ForeverQoL_Chat")
 
-local CONST_DEFAULT_CHATFRAME_ALPHA = 0
-
 function Chat:UpdateChat()
-	DEFAULT_CHATFRAME_ALPHA = CONST_DEFAULT_CHATFRAME_ALPHA
+    DEFAULT_CHATFRAME_ALPHA = 0
 
-	ChatFrame1:ClearAllPoints()
-	ChatFrame1:SetPoint('BOTTOMLEFT', UIParent, 'BOTTOMLEFT', 0, 0)
+    ChatFrame1:ClearAllPoints()
+    ChatFrame1:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", 0, 0)
 
-	for i = 1, #CHAT_FRAMES do
-		local frameName = "ChatFrame" .. i
+    for _, frameName in ipairs(CHAT_FRAMES) do
+        local chatFrame = _G[frameName]
+        if chatFrame then
+            chatFrame:SetClampedToScreen(not ForeverQoLData.Configs["DisableChatClamping"])
+            chatFrame:SetClampRectInsets(0, 0, 0, 0)
 
-		local chatFrame = _G[frameName]
-		if chatFrame then
-			chatFrame:SetClampedToScreen(not ForeverQoLData.Configs["DisableChatClamping"])
-			chatFrame:SetClampRectInsets(0, 0, 0, 0)
+            local editBox = _G[frameName .. "EditBox"]
+            if editBox then
+                local scrollBar = chatFrame.ScrollBar
 
-			local editBox = _G[frameName .. 'EditBox']
-			if editBox then
-				local scrollBar = chatFrame.ScrollBar
-
-				editBox:ClearAllPoints()
-				editBox:SetPoint('BOTTOMLEFT', chatFrame, 'TOPLEFT', 0, 3)
-				editBox:SetPoint('BOTTOMRIGHT', chatFrame, 'TOPRIGHT', scrollBar and scrollBar:GetWidth() or 0, 3)
-			end
-		end
-	end
+                editBox:ClearAllPoints()
+                editBox:SetPoint("BOTTOMLEFT", chatFrame, "TOPLEFT", 0, 3)
+                editBox:SetPoint("BOTTOMRIGHT", chatFrame, "TOPRIGHT", scrollBar and scrollBar:GetWidth() or 0, 3)
+            end
+        end
+    end
 end
 
 function Chat:Init()
-	self:UpdateChat()
+    self:UpdateChat()
 end
 
 ForeverQoL.Social.Chat = Chat
