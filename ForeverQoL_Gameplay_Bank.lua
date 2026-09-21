@@ -3,28 +3,20 @@ local ForeverQoL = select(2, ...)
 local Bank = CreateFrame("Frame", "ForeverQoL_Bank")
 
 local CONST_COPPER_PER_GOLD = 10000
--- The character's own bank. This client has no warband bank, so Enum.BankType.Account is out.
 local CONST_CHARACTER_BANK = Enum.BankType.Character
 
----Using a bag item while a bank is open deposits it into whichever tab is being viewed.
-function Bank:DepositListedItems()
-    if not ForeverQoLData.Configs["DepositListedItemsToBank"] then
-        return
-    end
-
+local function DepositListedItems()
     local deposited = 0
+
     for bagID = 0, NUM_BAG_SLOTS do
-        local numSlots = C_Container.GetContainerNumSlots(bagID)
-        if numSlots then
-            for slot = 1, numSlots do
-                local itemID = C_Container.GetContainerItemID(bagID, slot)
-                if itemID and ForeverQoLData.Configs.AutoDepositItemList[itemID]
-                    and not ForeverQoLData.Configs.AutoSellItemList[itemID] then
-                    local containerInfo = C_Container.GetContainerItemInfo(bagID, slot)
-                    if containerInfo and not containerInfo.isLocked then
-                        C_Container.UseContainerItem(bagID, slot)
-                        deposited = deposited + 1
-                    end
+        for slot = 1, C_Container.GetContainerNumSlots(bagID) or 0 do
+            local itemID = C_Container.GetContainerItemID(bagID, slot)
+            if itemID and ForeverQoLData.Configs.AutoDepositItemList[itemID]
+                and not ForeverQoLData.Configs.AutoSellItemList[itemID] then
+                local containerInfo = C_Container.GetContainerItemInfo(bagID, slot)
+                if containerInfo and not containerInfo.isLocked then
+                    C_Container.UseContainerItem(bagID, slot)
+                    deposited = deposited + 1
                 end
             end
         end
@@ -35,35 +27,25 @@ function Bank:DepositListedItems()
     end
 end
 
-local function GetExcessCopper()
+local function DepositExcessGold()
     local keep = math.max(0, math.floor(tonumber(ForeverQoLData.Configs["KeepGoldAmount"]) or 0))
-    local excess = GetMoney() - (keep * CONST_COPPER_PER_GOLD)
-    if excess <= 0 then
-        return 0
-    end
-
-    -- Deposit whole gold only, leaving the silver and copper on the character
-    return math.floor(excess / CONST_COPPER_PER_GOLD) * CONST_COPPER_PER_GOLD
-end
-
-function Bank:UpdateGameplayBank()
-    self:DepositListedItems()
-
-    if not ForeverQoLData.Configs["DepositExcessGoldToBank"] then
-        return
-    end
-
-    if not C_Bank.CanUseBank(CONST_CHARACTER_BANK) then
-        return
-    end
-
-    local excess = GetExcessCopper()
+    local excess = math.max(0, math.floor(GetMoney() / CONST_COPPER_PER_GOLD) - keep)
     if excess == 0 then
         return
     end
 
-    C_Bank.DepositMoney(CONST_CHARACTER_BANK, excess)
-    ForeverQoL.Print(string.format("Deposited %d gold into the bank.", excess / CONST_COPPER_PER_GOLD))
+    C_Bank.DepositMoney(CONST_CHARACTER_BANK, excess * CONST_COPPER_PER_GOLD)
+    ForeverQoL.Print(string.format("Deposited %d gold into the bank.", excess))
+end
+
+function Bank:UpdateGameplayBank()
+    if ForeverQoLData.Configs["DepositListedItemsToBank"] then
+        DepositListedItems()
+    end
+
+    if ForeverQoLData.Configs["DepositExcessGoldToBank"] and C_Bank.CanUseBank(CONST_CHARACTER_BANK) then
+        DepositExcessGold()
+    end
 end
 
 function Bank:Init()
