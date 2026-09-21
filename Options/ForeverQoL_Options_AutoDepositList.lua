@@ -4,7 +4,6 @@ local DF = _G["DetailsFramework"]
 local ForeverQoLOptions = ForeverQoL.ForeverQoLOptions
 
 local CONST_ICON_SIZE = 38
-
 local CONST_ICON_PAD = 4
 local CONST_ICONS_PER_ROW = 7
 local CONST_HEARTHSTONE_ID = 6948
@@ -20,10 +19,8 @@ function ForeverQoLOptions:ToggleAutoDepositList()
         self.AutoDepositListWindow:Toggle()
         return
     end
-
-    local title = "Auto Deposit List"
     local frameName = "ForeverQoLDepositListWindow"
-    local window = DF:CreateSimplePanel(UIParent, CONST_LIST_WIDTH, CONST_LIST_HEIGHT, title, frameName)
+    local window = DF:CreateSimplePanel(UIParent, CONST_LIST_WIDTH, CONST_LIST_HEIGHT, "Auto Deposit List", frameName)
     window:SetFrameStrata("FULLSCREEN_DIALOG")
     window:SetToplevel(true)
     DF:ApplyStandardBackdrop(window)
@@ -33,25 +30,15 @@ function ForeverQoLOptions:ToggleAutoDepositList()
     window:ClearAllPoints()
     window:SetPoint("topleft", ForeverQoLOptions, "topright", 8, 0)
     window:Hide()
-
-    local bagScroll
-
-    local listScroll
+    local bagScroll, listScroll
     local searchText = ""
 
     local function AddItem(itemID)
-        if itemID == CONST_HEARTHSTONE_ID then
-            ForeverQoL.Print("The Hearthstone cannot be added to the auto deposit list.")
-            return
-        end
-
-        if ForeverQoLData.Configs.AutoSellItemList[itemID] then
-            ForeverQoL.Print("Remove this item from the auto sell list before adding it to the auto deposit list.")
-            return
-        end
-
-        if ForeverQoL.IsQuestItem(itemID) then
-            ForeverQoL.Print("Quest items cannot be added to the auto deposit list.")
+        local refusal = itemID == CONST_HEARTHSTONE_ID and "The Hearthstone cannot be added to the auto deposit list."
+            or ForeverQoLData.Configs.AutoSellItemList[itemID] and "Remove this item from the auto sell list before adding it to the auto deposit list."
+            or ForeverQoL.IsQuestItem(itemID) and "Quest items cannot be added to the auto deposit list."
+        if refusal then
+            ForeverQoL.Print(refusal)
             return
         end
 
@@ -89,17 +76,14 @@ function ForeverQoLOptions:ToggleAutoDepositList()
             local row = CreateFrame("frame", nil, self)
             row:SetPoint("topleft", self, "topleft", 1, -((index - 1) * CONST_CELL) - 2)
             row:SetSize(CONST_COLUMN_WIDTH - 12, CONST_ICON_SIZE)
-
             row.slots = {}
             for column = 1, CONST_ICONS_PER_ROW do
                 local slot = ForeverQoL.CreateSlot(row, column, onClick)
                 if acceptsDrop then
                     EnableDrop(slot)
                 end
-
                 row.slots[column] = slot
             end
-
             return row
         end
     end
@@ -110,14 +94,12 @@ function ForeverQoLOptions:ToggleAutoDepositList()
             self:Hide()
             return
         end
-
         self:Reload()
         self:Show()
     end
 
     function window:Reload(resetScroll)
-        local available = {}
-        local selected = {}
+        local available, selected = {}, {}
         for itemID in pairs(ForeverQoLData.Configs.AutoDepositItemList) do
             local name, _, quality = C_Item.GetItemInfo(itemID)
             name = name or string.format("Item #%d", itemID)
@@ -148,9 +130,7 @@ function ForeverQoLOptions:ToggleAutoDepositList()
         end
     end
 
-    local bagHeader = DF:CreateLabel(window, "In your bags, click to add", 12, "orange")
-    bagHeader:SetPoint("topleft", window, "topleft", 20, -68)
-
+    DF:CreateLabel(window, "In your bags, click to add", 12, "orange"):SetPoint("topleft", window, "topleft", 20, -68)
     bagScroll = DF:CreateScrollBox(window, frameName .. "Bags", ForeverQoL.RefreshGrid, {},
         CONST_COLUMN_WIDTH, CONST_GRID_ROWS * CONST_CELL, CONST_GRID_ROWS, CONST_CELL)
     bagScroll:SetPoint("topleft", window, "topleft", 20, -88)
@@ -161,9 +141,7 @@ function ForeverQoLOptions:ToggleAutoDepositList()
     end), CONST_GRID_ROWS)
     DF:ReskinSlider(bagScroll)
 
-    local listHeader = DF:CreateLabel(window, "On the list, drag here to add, click to remove", 12, "orange")
-    listHeader:SetPoint("topleft", window, "topleft", CONST_COLUMN_WIDTH + 50, -68)
-
+    DF:CreateLabel(window, "On the list, drag here to add, click to remove", 12, "orange"):SetPoint("topleft", window, "topleft", CONST_COLUMN_WIDTH + 50, -68)
     listScroll = DF:CreateScrollBox(window, frameName .. "List", ForeverQoL.RefreshGrid, {},
         CONST_COLUMN_WIDTH, CONST_GRID_ROWS * CONST_CELL, CONST_GRID_ROWS, CONST_CELL)
     listScroll:SetPoint("topleft", window, "topleft", CONST_COLUMN_WIDTH + 50, -88)
@@ -180,8 +158,7 @@ function ForeverQoLOptions:ToggleAutoDepositList()
     -- The scrollbox catches whatever lands between or below the slots
     EnableDrop(listScroll)
 
-    local searchLabel = DF:CreateLabel(window, "Search name or item ID", 12, "orange")
-    searchLabel:SetPoint("topleft", window, "topleft", 20, -36)
+    DF:CreateLabel(window, "Search name or item ID", 12, "orange"):SetPoint("topleft", window, "topleft", 20, -36)
     local searchBox = DF:CreateSearchBox(window, function(self)
         searchText = self:GetText():match("^%s*(.-)%s*$"):lower()
         window:Reload(true)
@@ -190,6 +167,5 @@ function ForeverQoLOptions:ToggleAutoDepositList()
     searchBox:SetWidth(CONST_LIST_WIDTH - 210)
 
     self.AutoDepositListWindow = window
-
     window:Toggle()
 end
