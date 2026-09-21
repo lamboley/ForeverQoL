@@ -1,28 +1,6 @@
 local ForeverQoL = select(2, ...)
 
 function ForeverQoL:CreateDataTables()
-    local CONST_LEATHER = 2
-    local CONST_MAIL = 3
-    local CONST_PLATE = 4
-    local CONST_SHIELD = 6
-
-    -- Identify armor a class cannot wear so it can be tinted red.
-    self.WearableArmor = {
-        WARRIOR = { [CONST_LEATHER] = true, [CONST_MAIL] = true, [CONST_PLATE] = true, [CONST_SHIELD] = true },
-        PALADIN = { [CONST_LEATHER] = true, [CONST_MAIL] = true, [CONST_PLATE] = true, [CONST_SHIELD] = true },
-        DEATHKNIGHT = { [CONST_LEATHER] = true, [CONST_MAIL] = true, [CONST_PLATE] = true },
-        HUNTER = { [CONST_LEATHER] = true, [CONST_MAIL] = true },
-        SHAMAN = { [CONST_LEATHER] = true, [CONST_MAIL] = true, [CONST_SHIELD] = true },
-        EVOKER = { [CONST_MAIL] = true },
-        ROGUE = { [CONST_LEATHER] = true },
-        DRUID = { [CONST_LEATHER] = true },
-        MONK = { [CONST_LEATHER] = true },
-        DEMONHUNTER = { [CONST_LEATHER] = true },
-        PRIEST = {},
-        MAGE = {},
-        WARLOCK = {},
-    }
-
     -- Keep combat-text choices and their role-based visibility rules together.
     self.CombatTextStates = {
         { value = "always", label = "Always Show" },
@@ -34,16 +12,16 @@ function ForeverQoL:CreateDataTables()
 
     -- Apply the same visibility setting to player and pet combat text.
     self.CombatTextCVars = {
-        'floatingCombatTextCombatHealing',
-        'floatingCombatTextCombatDamage',
-        'floatingCombatTextCombatLogPeriodicSpells',
-        'floatingCombatTextPetMeleeDamage',
-        'floatingCombatTextPetSpellDamage',
-        'floatingCombatTextCombatHealing_v2',
-        'floatingCombatTextCombatDamage_v2',
-        'floatingCombatTextCombatLogPeriodicSpells_v2',
-        'floatingCombatTextPetMeleeDamage_v2',
-        'floatingCombatTextPetSpellDamage_v2',
+        "floatingCombatTextCombatHealing",
+        "floatingCombatTextCombatDamage",
+        "floatingCombatTextCombatLogPeriodicSpells",
+        "floatingCombatTextPetMeleeDamage",
+        "floatingCombatTextPetSpellDamage",
+        "floatingCombatTextCombatHealing_v2",
+        "floatingCombatTextCombatDamage_v2",
+        "floatingCombatTextCombatLogPeriodicSpells_v2",
+        "floatingCombatTextPetMeleeDamage_v2",
+        "floatingCombatTextPetSpellDamage_v2",
     }
 
     -- Give all bars the same visibility choices.
