@@ -48,6 +48,7 @@ globals = {
 	"C_TradeSkillUI",
 	"C_TransmogCollection",
 	"C_QuestLog",
+	"C_SuperTrack",
 	"ContainerFrameMixin",
 	"DFPixelUtil",
 	"PixelUtil",

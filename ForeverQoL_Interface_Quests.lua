@@ -3,9 +3,10 @@ local ForeverQoL = select(2, ...)
 local Quests = CreateFrame("Frame", "ForeverQoL_Quests")
 
 function Quests:UntrackCompleted()
+    local focused = C_SuperTrack.GetSuperTrackedQuestID()
     for index = C_QuestLog.GetNumQuestWatches(), 1, -1 do
         local questID = C_QuestLog.GetQuestIDForQuestWatchIndex(index)
-        if questID and C_QuestLog.ReadyForTurnIn(questID) then
+        if questID and questID ~= focused and C_QuestLog.ReadyForTurnIn(questID) then
             C_QuestLog.RemoveQuestWatch(questID)
         end
     end
