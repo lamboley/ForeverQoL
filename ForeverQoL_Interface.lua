@@ -12,16 +12,14 @@ local CONST_CONTAINER_FRAMES = 13
 -- Restriction text is drawn at full red; anything darker is a different kind of message.
 local CONST_RED_CHANNEL_MAX = 0.2
 
-local hookedIcons = {}
-
 local function IsKnown(itemLink)
     local tooltipData = C_TooltipInfo.GetHyperlink(itemLink)
     if not tooltipData then
         return false
     end
 
-    for i, line in ipairs(tooltipData.lines) do
-        local text = line.leftText
+    for _, line in ipairs(tooltipData.lines) do
+        local text = line.leftText or ""
         if text == ITEM_SPELL_KNOWN or (CONST_PET_KNOWN_PREFIX and string.match(text, CONST_PET_KNOWN_PREFIX)) then
             return true
         elseif text == ITEM_COSMETIC and C_TransmogCollection.PlayerHasTransmogByItemInfo(itemLink) then
@@ -35,12 +33,8 @@ end
 local function UpdateKnowMerchant()
     for index = 1, MERCHANT_ITEMS_PER_PAGE do
         local merchantButton = _G["MerchantItem" .. index]
-        if not merchantButton then
-            return
-        end
-
         local itemButton = _G["MerchantItem" .. index .. "ItemButton"]
-        if not itemButton then
+        if not merchantButton or not itemButton then
             return
         end
 
@@ -48,16 +42,21 @@ local function UpdateKnowMerchant()
         local itemLink = GetMerchantItemLink(((page - 1) * MERCHANT_ITEMS_PER_PAGE) + index)
 
         if itemLink and IsKnown(itemLink) then
-            local r = CONST_KNOWN_COLOR.r
-            local g = CONST_KNOWN_COLOR.g
-            local b = CONST_KNOWN_COLOR.b
+            local r, g, b = CONST_KNOWN_COLOR.r, CONST_KNOWN_COLOR.g, CONST_KNOWN_COLOR.b
 
             SetItemButtonNameFrameVertexColor(merchantButton, r, g, b)
             SetItemButtonSlotVertexColor(merchantButton, r, g, b)
-            SetItemButtonTextureVertexColor(itemButton, CONST_ICON_DIM * r, CONST_ICON_DIM * g, CONST_ICON_DIM * b)
-            SetItemButtonNormalTextureVertexColor(itemButton, CONST_ICON_DIM * r, CONST_ICON_DIM * g, CONST_ICON_DIM * b)
+            SetItemButtonTextureVertexColor(itemButton, r * CONST_ICON_DIM, g * CONST_ICON_DIM, b * CONST_ICON_DIM)
+            SetItemButtonNormalTextureVertexColor(itemButton, r * CONST_ICON_DIM, g * CONST_ICON_DIM, b * CONST_ICON_DIM)
         end
     end
+end
+
+local function IsRestrictionRed(color)
+    return color ~= nil
+        and color.r == 1
+        and color.g < CONST_RED_CHANNEL_MAX
+        and color.b < CONST_RED_CHANNEL_MAX
 end
 
 ---Every restriction the game applies -- class, race, level, reputation, profession --
@@ -70,21 +69,23 @@ local function IsUnusable(bagID, slotID)
     end
 
     for _, line in ipairs(tooltipData.lines) do
-        local left = line.leftColor
-        if left and left.r == 1 and left.g < CONST_RED_CHANNEL_MAX and left.b < CONST_RED_CHANNEL_MAX
+        if IsRestrictionRed(line.rightColor) then
+            return true
+        end
+
+        if IsRestrictionRed(line.leftColor)
             and line.leftText ~= ITEM_SCRAPABLE_NOT
             and line.leftText ~= CANNOT_UNEQUIP_COMBAT
             and line.leftText ~= ITEM_DISENCHANT_NOT_DISENCHANTABLE then
             return true
         end
-
-        local right = line.rightColor
-        if right and right.r == 1 and right.g < CONST_RED_CHANNEL_MAX and right.b < CONST_RED_CHANNEL_MAX then
-            return true
-        end
     end
 
     return false
+end
+
+local function TintRed(icon)
+    icon:SetVertexColor(RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b)
 end
 
 local function MarkUnusable(itemButton, unusable)
@@ -95,8 +96,8 @@ local function MarkUnusable(itemButton, unusable)
 
     itemButton.foreverQoLUnusable = unusable
 
-    if not hookedIcons[icon] then
-        hookedIcons[icon] = true
+    if not icon.foreverQoLHooked then
+        icon.foreverQoLHooked = true
 
         -- Blizzard resets the icon to white whenever it redraws a slot, on paths no addon
         -- is told about, so the tint is restored from inside SetVertexColor rather than by
@@ -108,47 +109,44 @@ local function MarkUnusable(itemButton, unusable)
             end
 
             restoring = true
-            icon:SetVertexColor(RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b)
+            TintRed(icon)
             restoring = false
         end)
     end
 
     if unusable then
-        icon:SetVertexColor(RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b)
+        TintRed(icon)
     else
         icon:SetVertexColor(1, 1, 1)
     end
 end
 
+---This client builds bag buttons dynamically and gives them no global name, so they are
+---reachable only through the container's own lists, and each button knows its own bag.
+local function MarkContainer(containerFrame)
+    if not containerFrame or not containerFrame:IsVisible() or not containerFrame.Items then
+        return
+    end
+
+    for _, itemButton in ipairs(containerFrame.Items) do
+        if itemButton.GetSlotAndBagID then
+            local slotID, bagID = itemButton:GetSlotAndBagID()
+            local hasItem = C_Container.GetContainerItemID(bagID, slotID) ~= nil
+            MarkUnusable(itemButton, hasItem and IsUnusable(bagID, slotID))
+        end
+    end
+end
+
 local function UpdateUnusableBags()
-    -- This client builds bag buttons dynamically and gives them no global name, so they
-    -- are reachable only through the container's own lists, and each button knows its bag.
-    local containerFrameContainer = _G["ContainerFrameContainer"]
-    if containerFrameContainer and containerFrameContainer.ContainerFrames then
-        for _, containerFrame in ipairs(containerFrameContainer.ContainerFrames) do
-            if containerFrame:IsVisible() and containerFrame.Items then
-                for _, itemButton in ipairs(containerFrame.Items) do
-                    if itemButton.GetSlotAndBagID then
-                        local slotID, bagID = itemButton:GetSlotAndBagID()
-                        local hasItem = C_Container.GetContainerItemID(bagID, slotID) ~= nil
-                        MarkUnusable(itemButton, hasItem and IsUnusable(bagID, slotID))
-                    end
-                end
-            end
+    local container = _G["ContainerFrameContainer"]
+    if container and container.ContainerFrames then
+        for _, containerFrame in ipairs(container.ContainerFrames) do
+            MarkContainer(containerFrame)
         end
     end
 
     -- Combined bags replace the numbered frames and are not in that list.
-    local combinedFrame = _G["ContainerFrameCombinedBags"]
-    if combinedFrame and combinedFrame:IsVisible() and combinedFrame.Items then
-        for _, itemButton in ipairs(combinedFrame.Items) do
-            if itemButton.GetSlotAndBagID then
-                local slotID, bagID = itemButton:GetSlotAndBagID()
-                local hasItem = C_Container.GetContainerItemID(bagID, slotID) ~= nil
-                MarkUnusable(itemButton, hasItem and IsUnusable(bagID, slotID))
-            end
-        end
-    end
+    MarkContainer(_G["ContainerFrameCombinedBags"])
 end
 
 function Interface:Init()
