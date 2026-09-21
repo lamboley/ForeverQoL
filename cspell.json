@@ -4,7 +4,11 @@
     "caseSensitive": false,
     "allowCompoundWords": true,
     "words": [
+        "Darnassian",
         "Forestshroom",
+        "hideashealer",
+        "hideashealerortank",
+        "hideastank",
         "luacheck"
     ]
 }
