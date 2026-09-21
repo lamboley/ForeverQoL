@@ -5,7 +5,6 @@ local Visibility = CreateFrame("Frame", "ForeverQoL_Visibility")
 local CONST_MOUSEOVER_PADDING = 10
 local CONST_MOUSEOVER_INTERVAL = 0.05
 
-local hookedFrames = {}
 local mouseoverFrames = {}
 local sinceLastCheck = 0
 
@@ -25,7 +24,6 @@ local function OnUpdate(_, elapsed)
         return
     end
     sinceLastCheck = 0
-
     for i = 1, #mouseoverFrames do
         UpdateAlpha(mouseoverFrames[i])
     end
@@ -33,16 +31,15 @@ end
 
 ---Blizzard shows these frames again on its own, so hiding one has to survive that.
 local function KeepHidden(frame, configKey)
-    if not hookedFrames[frame] then
+    if not frame.foreverQoLHooked then
+        frame.foreverQoLHooked = true
         -- Re-read the setting so the permanent hook allows later visibility changes.
         frame:HookScript("OnShow", function(shown)
             if ForeverQoLData.Configs[configKey] == "never" then
                 shown:Hide()
             end
         end)
-        hookedFrames[frame] = true
     end
-
     frame:Hide()
 end
 
@@ -53,7 +50,6 @@ local function ApplyVisibility(bar)
     end
 
     local state = ForeverQoLData.Configs[bar.key]
-
     if state == "mouseover" then
         -- Coming from "never" the frame is still hidden, and OnUpdate only sets the alpha
         frame:Show()
@@ -69,11 +65,9 @@ end
 
 function Visibility:UpdateVisibility()
     wipe(mouseoverFrames)
-
     for _, bar in ipairs(ForeverQoL.BarVisibilityFrames) do
         ApplyVisibility(bar)
     end
-
     self:SetScript("OnUpdate", #mouseoverFrames > 0 and OnUpdate or nil)
 end
 
@@ -90,7 +84,6 @@ function Visibility:GetVisibilityOptions(key)
             end
         }
     end
-
     return options
 end
 
@@ -101,11 +94,9 @@ local function ShouldHideCombatText()
             if state.roles then
                 return state.roles[ForeverQoL.GetRole() or ""] == true
             end
-
             return state.hide == true
         end
     end
-
     return false
 end
 
@@ -129,13 +120,11 @@ function Visibility:GetCombatTextOptions()
             end
         }
     end
-
     return options
 end
 
 function Visibility:OnEvent(event)
     self:UpdateCombatText()
-
     if event == "PLAYER_ENTERING_WORLD" then
         self:UpdateVisibility()
     end
@@ -145,7 +134,6 @@ function Visibility:Init()
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
     self:SetScript("OnEvent", self.OnEvent)
-
     self:UpdateVisibility()
     self:UpdateCombatText()
 
