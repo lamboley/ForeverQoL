@@ -109,8 +109,8 @@ function ForeverQoLOptions:Init()
                 CONST_OPTIONSPANEL_WIDTH = 50,
                 get = function() return ForeverQoLData.Configs["UseCustomHeight"] or "" end,
                 set = function(_, _, value)
-                    local CONST_OPTIONSPANEL_HEIGHT = tonumber(value)
-                    if CONST_OPTIONSPANEL_HEIGHT and CONST_OPTIONSPANEL_HEIGHT >= 480 and CONST_OPTIONSPANEL_HEIGHT <= 4320 then
+                    local height = tonumber(value)
+                    if height and height >= 480 and height <= 4320 then
                         ForeverQoLData.Configs["UseCustomHeight"] = value
                     else
                         ForeverQoL.Print("Custom height must be between 480-4320")
