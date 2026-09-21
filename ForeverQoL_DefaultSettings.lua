@@ -31,6 +31,7 @@ ForeverQoL.DefaultSettings = {
         [252028] = true, -- Fresh Gustberry Bread
         [267464] = true, -- Galeswept Forestshroom
         [252022] = true, -- Galestrider Jerky
+        [4604] = true, -- Forest Mushroom Cap
     },
 
     -- Gameplay - Bank
