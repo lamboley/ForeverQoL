@@ -8,7 +8,6 @@ function Gameplay:UpdateAutoLoot()
     if ForeverQoLData.Configs["FasterAutoLoot"] then
         lootFrameAlpha = lootFrameAlpha or LootFrame:GetAlpha()
         LootFrame:SetAlpha(0)
-
         for i = 1, GetNumLootItems() do
             LootSlot(i)
         end
@@ -24,20 +23,15 @@ function Gameplay:UpdateGroupChat()
         return
     end
 
-    local chatType
-    if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
-        chatType = "INSTANCE_CHAT"
-    elseif IsInRaid() then
-        chatType = "RAID"
-    elseif IsInGroup() then
-        chatType = "PARTY"
-    end
+    local chatType = IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT"
+        or IsInRaid() and "RAID"
+        or IsInGroup() and "PARTY"
+        or nil
 
     -- Roster changes within the same group must not override a manually chosen channel.
     if chatType == self.groupChatType then
         return
     end
-
     local previousType = self.groupChatType
     local targetType = chatType or "SAY"
     self.groupChatType = chatType
@@ -68,9 +62,7 @@ function Gameplay:Init()
             frame:UpdateGroupChat()
         end
     end)
-
     self:UpdateGroupChat()
-
     self.Merchant:Init()
     self.Bank:Init()
 end
