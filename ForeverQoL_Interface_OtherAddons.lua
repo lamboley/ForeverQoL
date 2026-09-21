@@ -11,12 +11,14 @@ end
 
 function OtherAddons:Init()
     if not ForeverQoLData.Configs["RestoreGrid2Positions"] then
+        return
+    end
+
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("UI_SCALE_CHANGED")
     self:RegisterEvent("DISPLAY_SIZE_CHANGED")
 
     self:SetScript("OnEvent", self.UpdateGrid2)
-    end
 end
 
 ForeverQoL.Interface.OtherAddons = OtherAddons
