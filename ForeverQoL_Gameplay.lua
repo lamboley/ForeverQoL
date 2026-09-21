@@ -6,14 +6,13 @@ local lootFrameAlpha
 
 function Gameplay:UpdateAutoLoot()
     if ForeverQoLData.Configs["FasterAutoLoot"] then
-        if lootFrameAlpha == nil then
-            lootFrameAlpha = LootFrame:GetAlpha()
-        end
+        lootFrameAlpha = lootFrameAlpha or LootFrame:GetAlpha()
         LootFrame:SetAlpha(0)
+
         for i = 1, GetNumLootItems() do
             LootSlot(i)
         end
-    elseif lootFrameAlpha ~= nil then
+    elseif lootFrameAlpha then
         LootFrame:SetAlpha(lootFrameAlpha)
         lootFrameAlpha = nil
     end
@@ -38,13 +37,14 @@ function Gameplay:UpdateGroupChat()
     if chatType == self.groupChatType then
         return
     end
+
     local previousType = self.groupChatType
+    local targetType = chatType or "SAY"
     self.groupChatType = chatType
 
     for _, frameName in ipairs(CHAT_FRAMES) do
         local editBox = _G[frameName .. "EditBox"]
         if editBox then
-            local targetType = chatType or "SAY"
             if chatType or editBox:GetAttribute("stickyType") == previousType then
                 editBox:SetAttribute("stickyType", targetType)
             end
@@ -61,13 +61,14 @@ function Gameplay:Init()
     self:RegisterEvent("LOOT_READY")
     self:RegisterEvent("GROUP_ROSTER_UPDATE")
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
-    self:SetScript("OnEvent", function(self, event)
+    self:SetScript("OnEvent", function(frame, event)
         if event == "LOOT_READY" then
-            self:UpdateAutoLoot()
+            frame:UpdateAutoLoot()
         else
-            self:UpdateGroupChat()
+            frame:UpdateGroupChat()
         end
     end)
+
     self:UpdateGroupChat()
 
     self.Merchant:Init()
