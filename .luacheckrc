@@ -36,7 +36,6 @@ globals = {
 	"MainStatusTrackingBarContainer",
 	"MicroMenuContainer",
 	"CHAT_FRAMES",
-	"ChatFrame1",
 	"QuickJoinToastButton",
 	"CHAT_FRAME_BUTTON_FRAME_MIN_ALPHA",
 	"DEFAULT_CHATFRAME_ALPHA",
