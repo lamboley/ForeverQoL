@@ -5,6 +5,10 @@ local DF = _G["DetailsFramework"]
 local CONST_OPTIONSPANEL_WIDTH = 1100
 local CONST_OPTIONSPANEL_HEIGHT = 670
 
+-- How far a column may run before BuildMenu wraps it into the next one, roughly one
+-- widget per 20. Raise it per tab, the way Details does, when a section needs more room.
+local CONST_MENU_HEIGHT = CONST_OPTIONSPANEL_HEIGHT - 10
+
 local textTemplate = DF:GetTemplate("font", "OPTIONS_FONT_TEMPLATE")
 local dropdownTemplate = DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
 local switchTemplate = DF:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE")
@@ -61,7 +65,6 @@ function ForeverQoLOptions:Init()
         frameBackgroundTexture:SetColorTexture (0.2317647, 0.2317647, 0.2317647)
         frameBackgroundTexture:SetVertexColor (0.27, 0.27, 0.27)
         frameBackgroundTexture:SetAlpha (0.3)
-
         local frameBackgroundTextureTopLine = frame:CreateTexture(nil, "artwork")
         frameBackgroundTextureTopLine:SetPoint("bottomleft", frameBackgroundTexture, "topleft", 0, 0)
         frameBackgroundTextureTopLine:SetPoint("bottomright", frame, "topright", -1, 0)
@@ -109,7 +112,7 @@ function ForeverQoLOptions:Init()
                 type = "textentry",
                 name = "Use Custom Height",
                 desc = "If the UI is too small when using the option above, you can set a custom vertical resolution here. Requires /reload to take effect",
-                CONST_OPTIONSPANEL_WIDTH = 50,
+                width = 50,
                 get = function() return ForeverQoLData.Configs["UseCustomHeight"] or "" end,
                 set = function(_, _, value)
                     local height = tonumber(value)
@@ -146,7 +149,7 @@ function ForeverQoLOptions:Init()
                 end,
             },
         },
-        10, -100, CONST_OPTIONSPANEL_HEIGHT - 10, false,
+        10, -100, CONST_MENU_HEIGHT, false,
         textTemplate, dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
     )
 
@@ -170,7 +173,7 @@ function ForeverQoLOptions:Init()
                 end,
             },
         },
-        10, -100, CONST_OPTIONSPANEL_HEIGHT - 10, false,
+        10, -100, CONST_MENU_HEIGHT, false,
         textTemplate, dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
     )
 
@@ -202,8 +205,86 @@ function ForeverQoLOptions:Init()
                     ForeverQoLData.Configs["FasterAutoLoot"] = value
                 end,
             },
+            {
+                type = "breakline"
+            },
+            { -- Automation
+                type = "label",
+                get = function() return "Automation" end,
+                text_template = orangeTextTemplate
+            },
+            { -- Auto Accept Resurrect
+                type = "toggle",
+                boxfirst = true,
+                name = "Accept Resurrections",
+                desc = "Take any resurrection offered, without the confirmation box",
+                get = function() return ForeverQoLData.Configs["AutoAcceptResurrect"] end,
+                set = function(_, _, value)
+                    ForeverQoLData.Configs["AutoAcceptResurrect"] = value
+                end,
+            },
+            { -- Auto Accept Summon
+                type = "toggle",
+                boxfirst = true,
+                name = "Accept Summons",
+                desc = "Take any summon offered, without the confirmation box",
+                get = function() return ForeverQoLData.Configs["AutoAcceptSummon"] end,
+                set = function(_, _, value)
+                    ForeverQoLData.Configs["AutoAcceptSummon"] = value
+                end,
+            },
+            { -- Thank On Summon
+                type = "toggle",
+                boxfirst = true,
+                name = "Thank The Summoner",
+                desc = "Whisper the summoner after taking a summon",
+                get = function() return ForeverQoLData.Configs["ThankOnSummon"] end,
+                set = function(_, _, value)
+                    ForeverQoLData.Configs["ThankOnSummon"] = value
+                end,
+            },
+            { -- Thank On Summon Message
+                type = "textentry",
+                name = "Thank You Message",
+                desc = "What to whisper the summoner",
+                width = 200,
+                get = function() return ForeverQoLData.Configs["ThankOnSummonMessage"] or "" end,
+                set = function(_, _, value)
+                    if value:match("%S") then
+                        ForeverQoLData.Configs["ThankOnSummonMessage"] = value
+                    else
+                        ForeverQoL.Print("The thank you message cannot be empty")
+                    end
+                end,
+                hooks = {
+                    OnEditFocusLost = function(self)
+                        self:SetText(ForeverQoLData.Configs["ThankOnSummonMessage"])
+                    end,
+                    OnEnterPressed = function(self) return end
+                },
+            },
+            { -- Auto Confirm Role Check
+                type = "toggle",
+                boxfirst = true,
+                name = "Confirm Role Checks",
+                desc = "Answer the group finder role check with the role already selected",
+                get = function() return ForeverQoLData.Configs["AutoConfirmRoleCheck"] end,
+                set = function(_, _, value)
+                    ForeverQoLData.Configs["AutoConfirmRoleCheck"] = value
+                end,
+            },
+            { -- Auto Release In PvP
+                type = "toggle",
+                boxfirst = true,
+                name = "Release In Battlegrounds",
+                desc = "Release straight away on death in a battleground or arena, never elsewhere",
+                get = function() return ForeverQoLData.Configs["AutoReleaseInPvP"] end,
+                set = function(_, _, value)
+                    ForeverQoLData.Configs["AutoReleaseInPvP"] = value
+                end,
+            },
         },
-        10, -100, CONST_OPTIONSPANEL_HEIGHT - 10, false,
+        10, -100, CONST_MENU_HEIGHT, false,
         textTemplate, dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
     )
 
@@ -231,6 +312,16 @@ function ForeverQoLOptions:Init()
                 get = function() return ForeverQoLData.Configs["UseGuildBankForRepair"] end,
                 set = function(_, _, value)
                     ForeverQoLData.Configs["UseGuildBankForRepair"] = value
+                end,
+            },
+            { -- Show Repair Summary
+                type = "toggle",
+                boxfirst = true,
+                name = "Announce Repair Cost",
+                desc = "Print what the repair cost in chat",
+                get = function() return ForeverQoLData.Configs["ShowRepairSummary"] end,
+                set = function(_, _, value)
+                    ForeverQoLData.Configs["ShowRepairSummary"] = value
                 end,
             },
             { -- Sell Junk Automatically
@@ -261,6 +352,16 @@ function ForeverQoLOptions:Init()
                 get = function() return ForeverQoLData.Configs["SellListedItemsAutomatically"] end,
                 set = function(_, _, value)
                     ForeverQoLData.Configs["SellListedItemsAutomatically"] = value
+                end,
+            },
+            { -- Show Sell Summary
+                type = "toggle",
+                boxfirst = true,
+                name = "Announce Sale Total",
+                desc = "Print how many items were sold and for how much",
+                get = function() return ForeverQoLData.Configs["ShowSellSummary"] end,
+                set = function(_, _, value)
+                    ForeverQoLData.Configs["ShowSellSummary"] = value
                 end,
             },
             { -- Manage The Sell List
@@ -300,7 +401,7 @@ function ForeverQoLOptions:Init()
                 end,
             },
             {
-                type = "blank"
+                type = "breakline"
             },
             { -- Bank
                 type = "label",
@@ -321,7 +422,7 @@ function ForeverQoLOptions:Init()
                 type = "textentry",
                 name = "Gold To Keep",
                 desc = "How much gold stays on the character, silver and copper are never moved",
-                CONST_OPTIONSPANEL_WIDTH = 90,
+                width = 90,
                 get = function() return ForeverQoLData.Configs["KeepGoldAmount"] or "" end,
                 set = function(_, _, value)
                     local amount = tonumber(value)
@@ -357,7 +458,7 @@ function ForeverQoLOptions:Init()
                 end,
             },
             {
-                type = "blank"
+                type = "breakline"
             },
             { -- Bags
                 type = "label",
@@ -378,14 +479,14 @@ function ForeverQoLOptions:Init()
                 type = "toggle",
                 boxfirst = true,
                 name = "Grey Out Junk Items",
-                desc = "Dim and drain the colour from grey quality items in the default bags. Requires /reload to take effect",
+                desc = "Dim and drain the colour from grey quality items and auto sell list items in the default bags. Requires /reload to take effect",
                 get = function() return ForeverQoLData.Configs["DesaturateJunkInBags"] end,
                 set = function(_, _, value)
                     ForeverQoLData.Configs["DesaturateJunkInBags"] = value
                 end,
             },
         },
-        10, -100, CONST_OPTIONSPANEL_HEIGHT - 10, false,
+        10, -100, CONST_MENU_HEIGHT, false,
         textTemplate, dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
     )
 
@@ -409,14 +510,14 @@ function ForeverQoLOptions:Init()
                 end,
             },
             {
-                type = "blank"
+                type = "breakline"
             },
             { -- Visibility
                 type = "label",
                 get = function() return "Visibility" end,
                 text_template = orangeTextTemplate
             },
-            { -- Disable Damage Text
+            { -- Floating Combat Text Visibility
                 type = "select",
                 name = "Floating Combat Text",
                 desc = "Covers damage, healing, periodic ticks and pet damage",
@@ -455,7 +556,7 @@ function ForeverQoLOptions:Init()
                 values = function() return ForeverQoL.Interface.Visibility:GetVisibilityOptions("StatusBarVisibility") end,
             },
             {
-                type = "blank"
+                type = "breakline"
             },
             { -- Other Addons
                 type = "label",
@@ -474,7 +575,7 @@ function ForeverQoLOptions:Init()
                 end,
             },
         },
-        10, -100, CONST_OPTIONSPANEL_HEIGHT - 10, false,
+        10, -100, CONST_MENU_HEIGHT, false,
         textTemplate, dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
     )
 end

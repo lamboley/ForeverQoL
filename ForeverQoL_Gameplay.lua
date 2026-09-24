@@ -22,7 +22,6 @@ function Gameplay:UpdateGroupChat()
         self.groupChatType = nil
         return
     end
-
     local chatType = IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT"
         or IsInRaid() and "RAID"
         or IsInGroup() and "PARTY"
@@ -35,14 +34,12 @@ function Gameplay:UpdateGroupChat()
     local previousType = self.groupChatType
     local targetType = chatType or "SAY"
     self.groupChatType = chatType
-
     for _, frameName in ipairs(CHAT_FRAMES) do
         local editBox = _G[frameName .. "EditBox"]
         if editBox then
             if chatType or editBox:GetAttribute("stickyType") == previousType then
                 editBox:SetAttribute("stickyType", targetType)
             end
-            -- Keep the recipient of an unfinished message intact.
             if editBox:GetText() == "" and (chatType or editBox:GetAttribute("chatType") == previousType) then
                 editBox:SetAttribute("chatType", targetType)
                 editBox:UpdateHeader()
@@ -65,6 +62,7 @@ function Gameplay:Init()
     self:UpdateGroupChat()
     self.Merchant:Init()
     self.Bank:Init()
+    self.Automation:Init()
 end
 
 ForeverQoL.Gameplay = Gameplay

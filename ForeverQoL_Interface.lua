@@ -4,12 +4,10 @@ local Interface = CreateFrame("Frame", "ForeverQoL_Interface")
 
 local CONST_KNOWN_COLOR = { r = 0, g = 1, b = 0 }
 local CONST_ICON_DIM = 0.9
--- Grey items are drab already, so desaturating alone barely shows. Lower this to darken.
 local CONST_JUNK_SHADE = 0.4
 local CONST_PET_KNOWN_PREFIX = string.match(ITEM_PET_KNOWN, "[^%(]+")
 local CONST_CONTAINER_FRAMES = 13
 
--- Restriction text is drawn at full red; anything darker is a different kind of message.
 local CONST_RED_CHANNEL_MAX = 0.2
 
 local function IsKnown(itemLink)
@@ -51,9 +49,6 @@ local function IsRestrictionRed(color)
     return color ~= nil and color.r == 1 and color.g < CONST_RED_CHANNEL_MAX and color.b < CONST_RED_CHANNEL_MAX
 end
 
----Every restriction the game applies -- class, race, level, reputation, profession --
----reaches the tooltip as red text, so matching the colour covers all of them at once and
----in every locale. The three excluded lines are red without meaning the item is unusable.
 local function IsUnusable(bagID, slotID)
     local tooltipData = C_TooltipInfo.GetBagItem(bagID, slotID)
     if not tooltipData then
@@ -77,7 +72,7 @@ local function TintRed(icon)
     icon:SetVertexColor(RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b)
 end
 
-local function MarkItem(itemButton, unusable, junk)
+local function MarkItem(itemButton, unusable, dim)
     local icon = itemButton.icon
     if not icon then
         return
@@ -85,9 +80,6 @@ local function MarkItem(itemButton, unusable, junk)
     itemButton.foreverQoLUnusable = unusable
     if not icon.foreverQoLHooked then
         icon.foreverQoLHooked = true
-        -- Blizzard resets the icon to white whenever it redraws a slot, on paths no addon
-        -- is told about, so the tint is restored from inside SetVertexColor rather than by
-        -- chasing every update function the client happens to have.
         local restoring = false
         hooksecurefunc(icon, "SetVertexColor", function()
             if restoring or not itemButton.foreverQoLUnusable then
@@ -99,19 +91,15 @@ local function MarkItem(itemButton, unusable, junk)
         end)
     end
 
-    -- Blizzard redraws can clear this too, but every redraw path also fires a bag update
-    -- that puts it back, so it does not need the SetVertexColor treatment.
-    icon:SetDesaturated(junk)
+    icon:SetDesaturated(dim)
     if unusable then
         TintRed(icon)
     else
-        local shade = junk and CONST_JUNK_SHADE or 1
+        local shade = dim and CONST_JUNK_SHADE or 1
         icon:SetVertexColor(shade, shade, shade)
     end
 end
 
----This client builds bag buttons dynamically and gives them no global name, so they are
----reachable only through the container's own lists, and each button knows its own bag.
 local function MarkContainer(containerFrame)
     if not containerFrame or not containerFrame:IsVisible() or not containerFrame.Items then
         return
@@ -122,7 +110,8 @@ local function MarkContainer(containerFrame)
             local info = C_Container.GetContainerItemInfo(bagID, slotID)
             MarkItem(itemButton,
                 info ~= nil and ForeverQoLData.Configs["TintUnusableInBags"] and IsUnusable(bagID, slotID),
-                info ~= nil and ForeverQoLData.Configs["DesaturateJunkInBags"] and info.quality == 0)
+                info ~= nil and ForeverQoLData.Configs["DesaturateJunkInBags"]
+                    and (info.quality == 0 or ForeverQoLData.Configs.AutoSellItemList[info.itemID] == true))
         end
     end
 end
@@ -135,7 +124,6 @@ local function UpdateBagMarks()
         end
     end
 
-    -- Combined bags replace the numbered frames and are not in that list.
     MarkContainer(_G["ContainerFrameCombinedBags"])
 end
 
@@ -145,8 +133,6 @@ function Interface:Init()
     end
 
     if ForeverQoLData.Configs["TintUnusableInBags"] or ForeverQoLData.Configs["DesaturateJunkInBags"] then
-        -- A container frame is handed a different bag as bags open and close, so the marks
-        -- need recomputing on show and not only when the contents change.
         for frameIndex = 1, CONST_CONTAINER_FRAMES do
             local containerFrame = _G["ContainerFrame" .. frameIndex]
             if containerFrame then

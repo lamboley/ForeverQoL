@@ -8,6 +8,7 @@ local function isGear(itemID)
 end
 
 local function sellItems()
+    local sold, earned = 0, 0
     for bagID = 0, NUM_BAG_SLOTS do
         for slot = 1, C_Container.GetContainerNumSlots(bagID) or 0 do
             local itemID = C_Container.GetContainerItemID(bagID, slot)
@@ -16,14 +17,17 @@ local function sellItems()
                 local isJunk = containerInfo.quality == 0 and not (ForeverQoLData.Configs["KeepGreyGear"] and isGear(itemID))
                 if isJunk or ForeverQoLData.Configs.AutoSellItemList[itemID] then
                     C_Container.UseContainerItem(bagID, slot)
+                    sold = sold + 1
+                    earned = earned + (select(11, C_Item.GetItemInfo(itemID)) or 0) * (containerInfo.stackCount or 1)
                 end
             end
         end
     end
+    if sold > 0 and ForeverQoLData.Configs["ShowSellSummary"] then
+        ForeverQoL.Print(string.format("Sold %d items for %s.", sold, GetCoinTextureString(earned)))
+    end
 end
 
----One call per item per visit: the client caps a purchase at a single stack, so a large
----shortfall tops up over the next few visits rather than in one go.
 local function buyItems()
     for index = 1, GetMerchantNumItems() do
         local link = GetMerchantItemLink(index)
@@ -37,10 +41,14 @@ local function buyItems()
 end
 
 local function repairItems()
+    local cost = GetRepairAllCost()
     if ForeverQoLData.Configs["UseGuildBankForRepair"] and GetGuildInfo("player") then
         RepairAllItems(true)
     end
     RepairAllItems()
+    if cost > 0 and ForeverQoLData.Configs["ShowRepairSummary"] then
+        ForeverQoL.Print(string.format("Repaired for %s.", GetCoinTextureString(cost)))
+    end
 end
 
 function Merchant:UpdateGameplayMerchant()
@@ -51,7 +59,6 @@ function Merchant:UpdateGameplayMerchant()
         sellItems()
     end
 
-    -- After selling, so the freed bag slots are available to buy into.
     if ForeverQoLData.Configs["BuyListedItemsAutomatically"] then
         buyItems()
     end

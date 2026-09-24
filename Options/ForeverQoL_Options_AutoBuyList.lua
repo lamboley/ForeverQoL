@@ -22,8 +22,6 @@ function ForeverQoLOptions:ToggleAutoBuyList()
     window:SetToplevel(true)
     DF:ApplyStandardBackdrop(window)
 
-    -- Beside the options panel rather than on top of it. Only at creation, so dragging it
-    -- somewhere else afterwards sticks.
     window:ClearAllPoints()
     window:SetPoint("topleft", ForeverQoLOptions, "topright", 8, 0)
     window:Hide()
@@ -85,7 +83,6 @@ function ForeverQoLOptions:ToggleAutoBuyList()
         EnableDrop(row.iconButton)
         row.icon = row.iconButton:CreateTexture(nil, "artwork")
         row.icon:SetAllPoints()
-        -- The default coordinates include the icon's own border
         row.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
         row.label = DF:CreateLabel(row, "", 11)
         row.label:SetPoint("left", row.iconButton, "right", 8, 0)
@@ -105,21 +102,17 @@ function ForeverQoLOptions:ToggleAutoBuyList()
     local function RefreshList(self, data, offset, totalLines)
         for i = 1, totalLines do
             local entry = data[i + offset]
-            local row = self:GetLine(i)
-            row.itemID = entry and entry.id
             if entry then
+                local row = self:GetLine(i)
+                row.itemID = entry.id
                 row.itemName = entry.name
                 row.icon:SetTexture(C_Item.GetItemIconByID(entry.id))
                 row.label:SetText(entry.name)
                 row.amount:SetText(tostring(entry.amount))
-                row:Show()
-            else
-                row:Hide()
             end
         end
     end
 
-    ---Opening always reloads, since an item may have joined the sell list since last time.
     function window:Toggle()
         if self:IsShown() then
             self:Hide()
@@ -132,7 +125,15 @@ function ForeverQoLOptions:ToggleAutoBuyList()
     function window:Reload(resetScroll)
         local entries = {}
         for itemID, amount in pairs(ForeverQoLData.Configs.AutoBuyItemList) do
-            local name = (C_Item.GetItemInfo(itemID)) or string.format("Item #%d", itemID)
+            local name = (C_Item.GetItemInfo(itemID))
+            if not name then
+                Item:CreateFromItemID(itemID):ContinueOnItemLoad(function()
+                    if C_Item.GetItemInfo(itemID) then
+                        window:Reload()
+                    end
+                end)
+                name = string.format("Item #%d", itemID)
+            end
             if name:lower():find(searchText, 1, true) or tostring(itemID):find(searchText, 1, true) then
                 entries[#entries + 1] = { id = itemID, name = name, amount = amount }
             end
@@ -141,7 +142,6 @@ function ForeverQoLOptions:ToggleAutoBuyList()
 
         listScroll:SetData(entries)
         if resetScroll then
-            -- A search must start at its first result, even when the unfiltered list was scrolled down.
             listScroll:OnVerticalScroll(0)
         else
             listScroll:Refresh()
@@ -155,7 +155,6 @@ function ForeverQoLOptions:ToggleAutoBuyList()
     listScroll:CreateLines(ListLine, CONST_LIST_ROWS)
     DF:ReskinSlider(listScroll)
 
-    -- The scrollbox catches whatever lands between or below the rows
     EnableDrop(listScroll)
 
     DF:CreateLabel(window, "Search name or item ID", 12, "orange"):SetPoint("topleft", window, "topleft", 20, -36)

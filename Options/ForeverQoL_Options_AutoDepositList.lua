@@ -25,8 +25,6 @@ function ForeverQoLOptions:ToggleAutoDepositList()
     window:SetToplevel(true)
     DF:ApplyStandardBackdrop(window)
 
-    -- Beside the options panel rather than on top of it. Only at creation, so dragging it
-    -- somewhere else afterwards sticks.
     window:ClearAllPoints()
     window:SetPoint("topleft", ForeverQoLOptions, "topright", 8, 0)
     window:Hide()
@@ -65,7 +63,6 @@ function ForeverQoLOptions:ToggleAutoDepositList()
         frame:EnableMouse(true)
         frame:SetScript("OnReceiveDrag", AddFromCursor)
         frame:HookScript("OnMouseDown", function()
-            -- Dropping onto a slot must not also remove the item on mouse release.
             frame.addedFromCursor = GetCursorInfo() == "item"
             AddFromCursor()
         end)
@@ -88,7 +85,6 @@ function ForeverQoLOptions:ToggleAutoDepositList()
         end
     end
 
-    ---Opening always reloads, since the bags will have moved since last time.
     function window:Toggle()
         if self:IsShown() then
             self:Hide()
@@ -102,7 +98,14 @@ function ForeverQoLOptions:ToggleAutoDepositList()
         local available, selected = {}, {}
         for itemID in pairs(ForeverQoLData.Configs.AutoDepositItemList) do
             local name, _, quality = C_Item.GetItemInfo(itemID)
-            name = name or string.format("Item #%d", itemID)
+            if not name then
+                Item:CreateFromItemID(itemID):ContinueOnItemLoad(function()
+                    if C_Item.GetItemInfo(itemID) then
+                        window:Reload()
+                    end
+                end)
+                name = string.format("Item #%d", itemID)
+            end
             if itemID ~= CONST_HEARTHSTONE_ID and not ForeverQoLData.Configs.AutoSellItemList[itemID]
                 and not ForeverQoL.IsQuestItem(itemID) and (name:lower():find(searchText, 1, true)
                 or tostring(itemID):find(searchText, 1, true)) then
@@ -121,7 +124,6 @@ function ForeverQoLOptions:ToggleAutoDepositList()
         bagScroll:SetData(ForeverQoL.ToGridRows(available))
         listScroll:SetData(ForeverQoL.ToGridRows(selected))
         if resetScroll then
-            -- A search must start at its first result, even when the unfiltered list was scrolled down.
             bagScroll:OnVerticalScroll(0)
             listScroll:OnVerticalScroll(0)
         else
@@ -155,7 +157,6 @@ function ForeverQoLOptions:ToggleAutoDepositList()
     end, true), CONST_GRID_ROWS)
     DF:ReskinSlider(listScroll)
 
-    -- The scrollbox catches whatever lands between or below the slots
     EnableDrop(listScroll)
 
     DF:CreateLabel(window, "Search name or item ID", 12, "orange"):SetPoint("topleft", window, "topleft", 20, -36)

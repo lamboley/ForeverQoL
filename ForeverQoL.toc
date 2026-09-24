@@ -29,6 +29,7 @@ ForeverQoL_Interface_OtherAddons.lua
 ForeverQoL_Gameplay.lua
 ForeverQoL_Gameplay_Merchant.lua
 ForeverQoL_Gameplay_Bank.lua
+ForeverQoL_Gameplay_Automation.lua
 
 Options\ForeverQoL_Options_Utils.lua
 Options\ForeverQoL_Options.lua
