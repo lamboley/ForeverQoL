@@ -45,6 +45,7 @@ ForeverQoL.DefaultSettings = {
         [2681] = true, -- Roasted Boar Meat
         [414] = true, -- Dalaran Sharp
         [4537] = true, -- Tel'Abim Banana
+        [4605] = true, -- Red-speckled Mushroom
     },
     ShowRepairSummary = true,
     ShowSellSummary = true,

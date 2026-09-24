@@ -24,7 +24,7 @@ local function sellItems()
         end
     end
     if sold > 0 and ForeverQoLData.Configs["ShowSellSummary"] then
-        ForeverQoL.Print(string.format("Sold %d items for %s.", sold, GetCoinTextureString(earned)))
+        ForeverQoL.Print(string.format("Sold %d items for %s.", sold, C_CurrencyInfo.GetCoinTextureString(earned)))
     end
 end
 
@@ -47,7 +47,7 @@ local function repairItems()
     end
     RepairAllItems()
     if cost > 0 and ForeverQoLData.Configs["ShowRepairSummary"] then
-        ForeverQoL.Print(string.format("Repaired for %s.", GetCoinTextureString(cost)))
+        ForeverQoL.Print(string.format("Repaired for %s.", C_CurrencyInfo.GetCoinTextureString(cost)))
     end
 end
 
