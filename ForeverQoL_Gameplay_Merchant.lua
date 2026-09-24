@@ -22,6 +22,20 @@ local function sellItems()
     end
 end
 
+---One call per item per visit: the client caps a purchase at a single stack, so a large
+---shortfall tops up over the next few visits rather than in one go.
+local function buyItems()
+    for index = 1, GetMerchantNumItems() do
+        local link = GetMerchantItemLink(index)
+        local itemID = link and C_Item.GetItemInfoInstant(link)
+        local wanted = itemID and ForeverQoLData.Configs.AutoBuyItemList[itemID]
+        local missing = wanted and wanted - C_Item.GetItemCount(itemID) or 0
+        if missing > 0 then
+            BuyMerchantItem(index, missing)
+        end
+    end
+end
+
 local function repairItems()
     if ForeverQoLData.Configs["UseGuildBankForRepair"] and GetGuildInfo("player") then
         RepairAllItems(true)
@@ -33,9 +47,13 @@ function Merchant:UpdateGameplayMerchant()
     if ForeverQoLData.Configs["RepairGearAutomatically"] and CanMerchantRepair() then
         repairItems()
     end
-
     if ForeverQoLData.Configs["SellJunkAutomatically"] and ForeverQoLData.Configs["SellListedItemsAutomatically"] then
         sellItems()
+    end
+
+    -- After selling, so the freed bag slots are available to buy into.
+    if ForeverQoLData.Configs["BuyListedItemsAutomatically"] then
+        buyItems()
     end
 end
 

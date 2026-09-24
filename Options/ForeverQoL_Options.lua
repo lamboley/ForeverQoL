@@ -34,6 +34,10 @@ function ForeverQoLOptions:Init()
                 text = "Gameplay"
             },
             {
+                name = "Inventory",
+                text = "Inventory"
+            },
+            {
                 name = "Interface",
                 text = "Interface"
             },
@@ -63,7 +67,6 @@ function ForeverQoLOptions:Init()
         frameBackgroundTextureTopLine:SetPoint("bottomright", frame, "topright", -1, 0)
         frameBackgroundTextureTopLine:SetHeight(1)
         frameBackgroundTextureTopLine:SetColorTexture(0.1215, 0.1176, 0.1294)
-        frameBackgroundTextureTopLine:SetAlpha(1)
     end
 
     -- System
@@ -172,8 +175,7 @@ function ForeverQoLOptions:Init()
     )
 
     -- Gameplay
-    local gameplayFrame = tabsContainer:GetTabFrameByName("Gameplay")
-    DF:BuildMenu(gameplayFrame,
+    DF:BuildMenu(tabsContainer:GetTabFrameByName("Gameplay"),
         {
             { -- General
                 type = "label",
@@ -200,9 +202,14 @@ function ForeverQoLOptions:Init()
                     ForeverQoLData.Configs["FasterAutoLoot"] = value
                 end,
             },
-            {
-                type = "breakline"
-            },
+        },
+        10, -100, CONST_OPTIONSPANEL_HEIGHT - 10, false,
+        textTemplate, dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
+    )
+
+    -- Inventory
+    DF:BuildMenu(tabsContainer:GetTabFrameByName("Inventory"),
+        {
             { -- Merchant
                 type = "label",
                 get = function() return "Merchant" end,
@@ -264,6 +271,34 @@ function ForeverQoLOptions:Init()
                     self:ToggleAutoSellList()
                 end,
             },
+            { -- Buy Listed Items Automatically
+                type = "toggle",
+                boxfirst = true,
+                name = "Buy Listed Items Automatically",
+                desc = "Top up the items on the list below whenever a merchant sells them",
+                get = function() return ForeverQoLData.Configs["BuyListedItemsAutomatically"] end,
+                set = function(_, _, value)
+                    ForeverQoLData.Configs["BuyListedItemsAutomatically"] = value
+                end,
+            },
+            { -- Manage The Buy List
+                type = "execute",
+                name = "Manage My Buy List",
+                desc = "Open the list of items kept stocked, with how many of each to keep",
+                func = function()
+                    self:ToggleAutoBuyList()
+                end,
+            },
+            { -- Tint Known At Merchant
+                type = "toggle",
+                boxfirst = true,
+                name = "Tint Known Items At Merchants",
+                desc = "Colour already collected items green. Turn off AlreadyKnown if you use it, or both will tint",
+                get = function() return ForeverQoLData.Configs["TintKnownAtMerchant"] end,
+                set = function(_, _, value)
+                    ForeverQoLData.Configs["TintKnownAtMerchant"] = value
+                end,
+            },
             {
                 type = "blank"
             },
@@ -321,28 +356,13 @@ function ForeverQoLOptions:Init()
                     self:ToggleAutoDepositList()
                 end,
             },
-        },
-        10, -100, CONST_OPTIONSPANEL_HEIGHT - 10, false,
-        textTemplate, dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
-    )
-
-    -- Interface
-    DF:BuildMenu(tabsContainer:GetTabFrameByName("Interface"),
-        {
-            { -- General
-                type = "label",
-                get = function() return "General" end,
-                text_template = orangeTextTemplate
+            {
+                type = "blank"
             },
-            { -- Tint Known At Merchant
-                type = "toggle",
-                boxfirst = true,
-                name = "Tint Known Items At Merchants",
-                desc = "Colour already collected items green. Turn off AlreadyKnown if you use it, or both will tint",
-                get = function() return ForeverQoLData.Configs["TintKnownAtMerchant"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["TintKnownAtMerchant"] = value
-                end,
+            { -- Bags
+                type = "label",
+                get = function() return "Bags" end,
+                text_template = orangeTextTemplate
             },
             { -- Tint Unusable In Bags
                 type = "toggle",
@@ -354,9 +374,24 @@ function ForeverQoLOptions:Init()
                     ForeverQoLData.Configs["TintUnusableInBags"] = value
                 end,
             },
-            {
-                type = "blank"
+            { -- Desaturate Junk In Bags
+                type = "toggle",
+                boxfirst = true,
+                name = "Grey Out Junk Items",
+                desc = "Dim and drain the colour from grey quality items in the default bags. Requires /reload to take effect",
+                get = function() return ForeverQoLData.Configs["DesaturateJunkInBags"] end,
+                set = function(_, _, value)
+                    ForeverQoLData.Configs["DesaturateJunkInBags"] = value
+                end,
             },
+        },
+        10, -100, CONST_OPTIONSPANEL_HEIGHT - 10, false,
+        textTemplate, dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
+    )
+
+    -- Interface
+    DF:BuildMenu(tabsContainer:GetTabFrameByName("Interface"),
+        {
             { -- Quests
                 type = "label",
                 get = function() return "Quests" end,
@@ -445,11 +480,7 @@ function ForeverQoLOptions:Init()
 end
 
 function ForeverQoLOptions:ToggleOptions()
-    if self:IsShown() then
-        self:Hide()
-    else
-        self:Show()
-    end
+    self:SetShown(not self:IsShown())
 end
 
 ForeverQoL.ForeverQoLOptions = ForeverQoLOptions

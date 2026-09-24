@@ -79,6 +79,7 @@ globals = {
 
 	-- WoW Functions
 	"CanMerchantRepair",
+	"BuyMerchantItem",
 	"ClearCursor",
 	"CreateFrame",
 	"GetCursorInfo",
@@ -88,6 +89,7 @@ globals = {
 	"GetMoney",
 	"GetRealmName",
 	"GetMerchantItemLink",
+	"GetMerchantNumItems",
 	"GetNumLootItems",
 	"GetPhysicalScreenSize",
 	"GetSpecialization",

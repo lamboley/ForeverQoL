@@ -18,7 +18,7 @@ ForeverQoL.DefaultSettings = {
     FasterAutoLoot = true,
     AutoGroupChat = true,
 
-    -- Gameplay - Merchant
+    -- Inventory - Merchant
     RepairGearAutomatically = true,
     UseGuildBankForRepair = false,
     SellJunkAutomatically = true,
@@ -33,17 +33,26 @@ ForeverQoL.DefaultSettings = {
         [4604] = true, -- Forest Mushroom Cap
         [2070] = true, -- Darnassian Bleu
         [4536] = true, -- Shiny Red Apple
+        [2287] = true, -- Haunch of Meat
+        [2681] = true, -- Roasted Boar Meat
     },
+    BuyListedItemsAutomatically = true,
+    AutoBuyItemList = {
+        [4471] = 1, -- Flint and Tinder
+        [4470] = 5, -- Simple Wood
+        [3371] = 5, -- Empty Vial
+    },
+    TintKnownAtMerchant = true,
 
-    -- Gameplay - Bank
+    -- Inventory - Bank
     DepositExcessGoldToBank = true,
     KeepGoldAmount = "1",
     DepositListedItemsToBank = true,
     AutoDepositItemList = {},
 
-    -- Interface - General
-    TintKnownAtMerchant = true,
+    -- Inventory - Bags
     TintUnusableInBags = true,
+    DesaturateJunkInBags = true,
 
     -- Interface - Quests
     UntrackCompletedQuests = true,

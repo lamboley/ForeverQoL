@@ -4,9 +4,9 @@ local Interface = CreateFrame("Frame", "ForeverQoL_Interface")
 
 local CONST_KNOWN_COLOR = { r = 0, g = 1, b = 0 }
 local CONST_ICON_DIM = 0.9
-
+-- Grey items are drab already, so desaturating alone barely shows. Lower this to darken.
+local CONST_JUNK_SHADE = 0.4
 local CONST_PET_KNOWN_PREFIX = string.match(ITEM_PET_KNOWN, "[^%(]+")
-
 local CONST_CONTAINER_FRAMES = 13
 
 -- Restriction text is drawn at full red; anything darker is a different kind of message.
@@ -17,7 +17,6 @@ local function IsKnown(itemLink)
     if not tooltipData then
         return false
     end
-
     for _, line in ipairs(tooltipData.lines) do
         local text = line.leftText or ""
         if text == ITEM_SPELL_KNOWN or (CONST_PET_KNOWN_PREFIX and string.match(text, CONST_PET_KNOWN_PREFIX)) then
@@ -38,7 +37,6 @@ local function UpdateKnowMerchant()
         end
         local page = MerchantFrame.page or 1
         local itemLink = GetMerchantItemLink(((page - 1) * MERCHANT_ITEMS_PER_PAGE) + index)
-
         if itemLink and IsKnown(itemLink) then
             local r, g, b = CONST_KNOWN_COLOR.r, CONST_KNOWN_COLOR.g, CONST_KNOWN_COLOR.b
             SetItemButtonNameFrameVertexColor(merchantButton, r, g, b)
@@ -61,7 +59,6 @@ local function IsUnusable(bagID, slotID)
     if not tooltipData then
         return false
     end
-
     for _, line in ipairs(tooltipData.lines) do
         if IsRestrictionRed(line.rightColor) then
             return true
@@ -80,13 +77,12 @@ local function TintRed(icon)
     icon:SetVertexColor(RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b)
 end
 
-local function MarkUnusable(itemButton, unusable)
+local function MarkItem(itemButton, unusable, junk)
     local icon = itemButton.icon
     if not icon then
         return
     end
     itemButton.foreverQoLUnusable = unusable
-
     if not icon.foreverQoLHooked then
         icon.foreverQoLHooked = true
         -- Blizzard resets the icon to white whenever it redraws a slot, on paths no addon
@@ -103,10 +99,14 @@ local function MarkUnusable(itemButton, unusable)
         end)
     end
 
+    -- Blizzard redraws can clear this too, but every redraw path also fires a bag update
+    -- that puts it back, so it does not need the SetVertexColor treatment.
+    icon:SetDesaturated(junk)
     if unusable then
         TintRed(icon)
     else
-        icon:SetVertexColor(1, 1, 1)
+        local shade = junk and CONST_JUNK_SHADE or 1
+        icon:SetVertexColor(shade, shade, shade)
     end
 end
 
@@ -116,17 +116,18 @@ local function MarkContainer(containerFrame)
     if not containerFrame or not containerFrame:IsVisible() or not containerFrame.Items then
         return
     end
-
     for _, itemButton in ipairs(containerFrame.Items) do
         if itemButton.GetSlotAndBagID then
             local slotID, bagID = itemButton:GetSlotAndBagID()
-            local hasItem = C_Container.GetContainerItemID(bagID, slotID) ~= nil
-            MarkUnusable(itemButton, hasItem and IsUnusable(bagID, slotID))
+            local info = C_Container.GetContainerItemInfo(bagID, slotID)
+            MarkItem(itemButton,
+                info ~= nil and ForeverQoLData.Configs["TintUnusableInBags"] and IsUnusable(bagID, slotID),
+                info ~= nil and ForeverQoLData.Configs["DesaturateJunkInBags"] and info.quality == 0)
         end
     end
 end
 
-local function UpdateUnusableBags()
+local function UpdateBagMarks()
     local container = _G["ContainerFrameContainer"]
     if container and container.ContainerFrames then
         for _, containerFrame in ipairs(container.ContainerFrames) do
@@ -143,23 +144,23 @@ function Interface:Init()
         hooksecurefunc("MerchantFrame_UpdateMerchantInfo", UpdateKnowMerchant)
     end
 
-    if ForeverQoLData.Configs["TintUnusableInBags"] then
+    if ForeverQoLData.Configs["TintUnusableInBags"] or ForeverQoLData.Configs["DesaturateJunkInBags"] then
         -- A container frame is handed a different bag as bags open and close, so the marks
         -- need recomputing on show and not only when the contents change.
         for frameIndex = 1, CONST_CONTAINER_FRAMES do
             local containerFrame = _G["ContainerFrame" .. frameIndex]
             if containerFrame then
-                containerFrame:HookScript("OnShow", UpdateUnusableBags)
+                containerFrame:HookScript("OnShow", UpdateBagMarks)
             end
         end
         local combinedFrame = _G["ContainerFrameCombinedBags"]
         if combinedFrame then
-            combinedFrame:HookScript("OnShow", UpdateUnusableBags)
+            combinedFrame:HookScript("OnShow", UpdateBagMarks)
         end
         self:RegisterEvent("BAG_UPDATE_DELAYED")
         self:RegisterEvent("PLAYER_LEVEL_UP")
-        self:SetScript("OnEvent", UpdateUnusableBags)
-        UpdateUnusableBags()
+        self:SetScript("OnEvent", UpdateBagMarks)
+        UpdateBagMarks()
     end
 
     self.Quests:Init()

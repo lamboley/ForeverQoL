@@ -34,3 +34,4 @@ Options\ForeverQoL_Options_Utils.lua
 Options\ForeverQoL_Options.lua
 Options\ForeverQoL_Options_AutoSellList.lua
 Options\ForeverQoL_Options_AutoDepositList.lua
+Options\ForeverQoL_Options_AutoBuyList.lua
