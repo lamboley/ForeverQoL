@@ -53,7 +53,6 @@ ForeverQoL.DefaultSettings = {
         [4471] = 1, -- Flint and Tinder
         [2901] = 1, -- Mining Pick
         [5956] = 1, -- Blacksmith Hammer
-        [4470] = 20, -- Simple Wood
     },
     TintKnownAtMerchant = true,
 
