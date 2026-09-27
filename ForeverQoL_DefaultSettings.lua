@@ -52,8 +52,8 @@ ForeverQoL.DefaultSettings = {
     BuyListedItemsAutomatically = true,
     AutoBuyItemList = {
         [4471] = 1, -- Flint and Tinder
-        [4470] = 5, -- Simple Wood
-        [3371] = 5, -- Empty Vial
+        [4470] = 20, -- Simple Wood
+        -- [3371] = 5, -- Empty Vial
     },
     TintKnownAtMerchant = true,
 

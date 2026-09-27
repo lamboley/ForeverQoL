@@ -1,0 +1,1 @@
+Buffs^"Minor Arcane Elixir";Consumables/Elixirs;0;0;0;0;0;0;0;0;;#;;^"Elixir of Wisdom";Consumables/Elixirs;0;0;0;0;0;0;0;0;;#;;^"Lesser Spellblasting Potion";Consumables/Potions;0;0;0;0;0;0;0;0;;#;;^"Scroll of Intellect";Consumables/Scrolls;0;0;0;0;0;0;0;0;;#;;^"Smoked Sagefish";Consumables/Food & Drink;0;0;0;0;0;0;0;0;;#;;^"Magic Dust";Consumables/Other;0;0;0;0;0;0;0;0;;#;;
