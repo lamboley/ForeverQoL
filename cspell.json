@@ -4,11 +4,13 @@
     "caseSensitive": false,
     "allowCompoundWords": true,
     "words": [
+        "Dalaran",
         "Darnassian",
         "Forestshroom",
         "hideashealer",
         "hideashealerortank",
         "hideastank",
-        "luacheck"
+        "luacheck",
+        "Tel'Abim"
     ]
 }
