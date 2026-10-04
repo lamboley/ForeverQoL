@@ -1,126 +1,49 @@
 std = "lua51"
 max_line_length = false
-exclude_files = {
-	"Libs/",
-	".luacheckrc"
-}
+exclude_files = { "Libs/" }
 ignore = {
 	"11./SLASH_.*", -- Setting an undefined (Slash handler) global variable
 	"11./BINDING_.*", -- Setting an undefined (Keybinding header) global variable
 	"113/LE_.*", -- Accessing an undefined (Lua ENUM type) global variable
-	"113/NUM_LE_.*", -- Accessing an undefined (Lua ENUM type) global variable
-	"211", -- Unused local variable
-	"211/L", -- Unused local variable "L"
-	"211/CL", -- Unused local variable "CL"
 	"212", -- Unused argument
-	"213", -- Unused loop variable
-	"214", -- unused hint
-	-- "231", -- Set but never accessed
-	"311", -- Value assigned to a local variable is unused
-	"314", -- Value of a field in a table literal is unused
-	"42.", -- Shadowing a local variable, an argument, a loop variable.
-	"43.", -- Shadowing an upvalue, an upvalue argument, an upvalue loop variable.
-	"542", -- An empty if branch
-	"581", --  error-prone operator orders
-	"582", --  error-prone operator orders
+	"43.", -- Shadowing an upvalue, an upvalue argument, an upvalue loop variable
 }
 globals = {
 	-- ForeverQoL
-	"ForeverQoLData",
+	"ForeverQoLData", "ForeverQoL_FocusNextQuest", "ForeverQoL_FocusPreviousQuest",
 
 	-- Third Party
 	"LibStub",
 
 	-- WoW Namespaces
-	"BagsBar",
-	"MainStatusTrackingBarContainer",
-	"MicroMenuContainer",
-	"CHAT_FRAMES",
-	"QuickJoinToastButton",
-	"CHAT_FRAME_BUTTON_FRAME_MIN_ALPHA",
-	"DEFAULT_CHATFRAME_ALPHA",
-	"C_Bank",
-	"C_HousingCatalog",
-	"C_Container",
-	"C_CurrencyInfo",
-	"C_Item",
-	"C_TooltipInfo",
-	"C_TradeSkillUI",
-	"C_TransmogCollection",
-	"C_QuestLog",
-	"C_SuperTrack",
-	"C_SummonInfo",
-	"ContainerFrameMixin",
-	"DFPixelUtil",
-	"PixelUtil",
-	"C_Timer",
-	"Enum",
-	"Item",
+	"C_Bank", "C_BattleNet", "C_Container", "C_CurrencyInfo", "C_FriendList", "C_Item",
+	"C_QuestLog", "C_SummonInfo", "C_SuperTrack", "C_TooltipInfo", "C_TransmogCollection",
+	"Enum", "Item", "PixelUtil",
 
 	-- WoW Frames
-	"DEFAULT_CHAT_FRAME",
-	"GameTooltip",
-	"LootFrame",
-	"MerchantFrame",
-	"ProfessionsFrame",
-	"ProfessionsRecipeListRecipeMixin",
-	"UIParent",
+	"ActionBarButtonEventsFrame", "BagsBar", "BossBanner", "EventToastManagerFrame",
+	"GameTooltip", "LootFrame", "MainStatusTrackingBarContainer", "MerchantFrame",
+	"MicroMenuContainer", "SubZoneTextFrame", "TooltipDataProcessor", "UIErrorsFrame",
+	"UIParent", "ZoneTextFrame",
 
 	-- WoW Constants
-	"CANNOT_UNEQUIP_COMBAT",
-	"ITEM_COSMETIC",
-	"ITEM_DISENCHANT_NOT_DISENCHANTABLE",
-	"ITEM_QUALITY_COLORS",
-	"ITEM_PET_KNOWN",
-	"ITEM_SCRAPABLE_NOT",
-	"ITEM_SPELL_KNOWN",
-	"MERCHANT_ITEMS_PER_PAGE",
-	"NUM_BAG_SLOTS",
-	"RED_FONT_COLOR",
-	"TOY",
+	"CANNOT_UNEQUIP_COMBAT", "CHAT_FRAMES", "DEFAULT_CHATFRAME_ALPHA", "DELETE_ITEM_CONFIRM_STRING",
+	"DUEL_WINNER_KNOCKOUT", "DUEL_WINNER_RETREAT", "ITEM_COSMETIC",
+	"ITEM_DISENCHANT_NOT_DISENCHANTABLE", "ITEM_PET_KNOWN", "ITEM_QUALITY_COLORS",
+	"ITEM_SCRAPABLE_NOT", "ITEM_SPELL_KNOWN", "MERCHANT_ITEMS_PER_PAGE", "NUM_BAG_SLOTS",
+	"RED_FONT_COLOR", "TARGET",
 
 	-- WoW Functions
-	"CanMerchantRepair",
-	"AcceptResurrect",
-	"CompleteLFGRoleCheck",
-	"GetRepairAllCost",
-	"IsInInstance",
-	"RepopMe",
-	"StaticPopup_Hide",
-	"BuyMerchantItem",
-	"ClearCursor",
-	"CreateFrame",
-	"GetCursorInfo",
-	"GetCVar",
-	"GetGuildInfo",
-	"GetLocale",
-	"GetMoney",
-	"GetRealmName",
-	"GetMerchantItemLink",
-	"GetMerchantNumItems",
-	"GetNumLootItems",
-	"GetPhysicalScreenSize",
-	"GetSpecialization",
-	"GetSpecializationRole",
-    "IsInGroup",
-    "IsInRaid",
-	"LootSlot",
-	"MerchantFrame_UpdateMerchantInfo",
-	"MuteSoundFile",
-	"PlaySoundFile",
-	"ReloadUI",
-	"RepairAllItems",
-	"SetCVar",
-	"SendChatMessage",
-	"SetItemButtonNameFrameVertexColor",
-	"SetItemButtonNormalTextureVertexColor",
-	"SetItemButtonSlotVertexColor",
-	"SetItemButtonTextureVertexColor",
-	"SlashCmdList",
-	"UnitAffectingCombat",
-	"UnitClass",
-	"UnitName",
-	"hooksecurefunc",
-	"time",
-	"wipe",
+	"AcceptResurrect", "BNDeclineFriendInvite", "BNGetNumFriendInvites", "BuyMerchantItem",
+	"CanMerchantRepair", "CancelDuel", "ChatFrame_AddMessageEventFilter", "ClearCursor",
+	"CompleteLFGRoleCheck", "CreateFrame", "DeclineGroup", "GetCursorInfo", "GetGuildInfo",
+	"GetLocale", "GetMerchantItemLink", "GetMerchantNumItems", "GetMoney", "GetNumLootItems",
+	"GetPhysicalScreenSize", "GetPlayerInfoByGUID", "GetRepairAllCost", "GetSpecialization",
+	"GetSpecializationRole", "IsInGroup", "IsInInstance", "IsInRaid", "LootSlot",
+	"MerchantFrame_UpdateMerchantInfo", "MuteSoundFile", "ReloadUI", "RepairAllItems", "RepopMe",
+	"SendChatMessage", "SetCVar", "SetItemButtonNameFrameVertexColor",
+	"SetItemButtonNormalTextureVertexColor", "SetItemButtonSlotVertexColor",
+	"SetItemButtonTextureVertexColor", "SlashCmdList", "StaticPopup_FindVisible",
+	"StaticPopup_Hide", "StaticPopup_Show", "UnitAffectingCombat", "UnitName", "hooksecurefunc",
+	"strsplit", "time", "wipe",
 }

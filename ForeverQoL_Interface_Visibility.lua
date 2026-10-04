@@ -8,14 +8,6 @@ local CONST_MOUSEOVER_INTERVAL = 0.05
 local mouseoverFrames = {}
 local sinceLastCheck = 0
 
-local function UpdateAlpha(frame)
-    local alpha = frame:IsMouseOver(CONST_MOUSEOVER_PADDING, -CONST_MOUSEOVER_PADDING, -CONST_MOUSEOVER_PADDING, CONST_MOUSEOVER_PADDING) and 1 or 0
-    -- Only touch the frame when the alpha actually changes, this runs several times a second
-    if frame:GetAlpha() ~= alpha then
-        frame:SetAlpha(alpha)
-    end
-end
-
 local function OnUpdate(_, elapsed)
     -- The target alpha is either 0 or 1, so hit testing the cursor on every rendered
     -- frame buys nothing the eye can see
@@ -25,7 +17,12 @@ local function OnUpdate(_, elapsed)
     end
     sinceLastCheck = 0
     for i = 1, #mouseoverFrames do
-        UpdateAlpha(mouseoverFrames[i])
+        local frame = mouseoverFrames[i]
+        local alpha = frame:IsMouseOver(CONST_MOUSEOVER_PADDING, -CONST_MOUSEOVER_PADDING, -CONST_MOUSEOVER_PADDING, CONST_MOUSEOVER_PADDING) and 1 or 0
+        -- Only touch the frame when the alpha actually changes, this runs several times a second
+        if frame:GetAlpha() ~= alpha then
+            frame:SetAlpha(alpha)
+        end
     end
 end
 
@@ -87,23 +84,22 @@ function Visibility:GetVisibilityOptions(key)
     return options
 end
 
-local function ShouldHideCombatText()
+function Visibility:UpdateCombatText()
     local wanted = ForeverQoLData.Configs["FloatingCombatTextVisibility"]
+    local hide = false
     for _, state in ipairs(ForeverQoL.CombatTextStates) do
         if state.value == wanted then
+            -- A state with roles hides for those roles only, whatever its hide flag says.
             if state.roles then
-                return state.roles[ForeverQoL.GetRole() or ""] == true
+                hide = state.roles[ForeverQoL.GetRole() or ""] == true
+            else
+                hide = state.hide == true
             end
-            return state.hide == true
+            break
         end
     end
-    return false
-end
-
-function Visibility:UpdateCombatText()
-    local value = ShouldHideCombatText() and 0 or 1
     for _, cvar in ipairs(ForeverQoL.CombatTextCVars) do
-        SetCVar(cvar, value)
+        SetCVar(cvar, hide and 0 or 1)
     end
 end
 
@@ -136,6 +132,24 @@ function Visibility:Init()
     self:SetScript("OnEvent", self.OnEvent)
     self:UpdateVisibility()
     self:UpdateCombatText()
+
+    -- Unregistering beats hiding: each of these is shown by its own events, so a hidden frame
+    -- is put straight back the next time one fires. Not every frame ships on every build, and
+    -- an error here would cost the rest of this Init and the modules that follow it.
+    if ForeverQoLData.Configs["HideBossBanner"] and BossBanner then
+        BossBanner:UnregisterAllEvents()
+    end
+    if ForeverQoLData.Configs["HideErrorMessages"] and UIErrorsFrame then
+        -- Only the red errors, so the yellow notices such as loot and reputation still land.
+        UIErrorsFrame:UnregisterEvent("UI_ERROR_MESSAGE")
+    end
+    if ForeverQoLData.Configs["HideZoneText"] and ZoneTextFrame then
+        ZoneTextFrame:UnregisterAllEvents()
+        SubZoneTextFrame:UnregisterAllEvents()
+    end
+    if ForeverQoLData.Configs["HideEventToasts"] and EventToastManagerFrame then
+        EventToastManagerFrame:UnregisterAllEvents()
+    end
 
     if ForeverQoLData.Configs["HideTooltipWhileInCombat"] then
         hooksecurefunc(GameTooltip, "Show", function(tooltip)

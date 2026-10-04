@@ -22,8 +22,11 @@ ForeverQoL_System_Graphics.lua
 ForeverQoL_System_Audio.lua
 ForeverQoL_Social.lua
 ForeverQoL_Social_Chat.lua
+ForeverQoL_Social_Invites.lua
 ForeverQoL_Interface.lua
+ForeverQoL_Interface_ActionBars.lua
 ForeverQoL_Interface_Quests.lua
+ForeverQoL_Interface_Tooltip.lua
 ForeverQoL_Interface_Visibility.lua
 ForeverQoL_Interface_OtherAddons.lua
 ForeverQoL_Gameplay.lua

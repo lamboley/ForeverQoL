@@ -25,30 +25,15 @@ DF:ApplyStandardBackdrop(ForeverQoLOptions)
 function ForeverQoLOptions:Init()
     local tabsContainer = DF:CreateTabContainer(self, "Forever QoL", "ForeverQoLOptionsTabsContainers",
         {
-            {
-                name = "System",
-                text = "System"
-            },
-            {
-                name = "Social",
-                text = "Social"
-            },
-            {
-                name = "Gameplay",
-                text = "Gameplay"
-            },
-            {
-                name = "Inventory",
-                text = "Inventory"
-            },
-            {
-                name = "Interface",
-                text = "Interface"
-            },
+            { name = "System", text = "System" },
+            { name = "Social", text = "Social" },
+            { name = "Gameplay", text = "Gameplay" },
+            { name = "Inventory", text = "Inventory" },
+            { name = "Interface", text = "Interface" },
         },
         {
             width = CONST_OPTIONSPANEL_WIDTH,
-            height = CONST_OPTIONSPANEL_HEIGHT - 10,
+            height = CONST_MENU_HEIGHT,
             backdrop_color = { 0, 0, 0, 0 },
             button_width = 108,
             close_text_alpha = 0.4,
@@ -59,12 +44,12 @@ function ForeverQoLOptions:Init()
     tabsContainer:SetPoint("CENTER", self, "CENTER", 0, 0)
 
     for _, frame in ipairs(tabsContainer.AllFrames) do
+        -- One call for the panel colour: a 0.2317647 texture tinted to 0.27 renders as the
+        -- product of the two, and the fourth argument carries what SetAlpha did.
         local frameBackgroundTexture = frame:CreateTexture(nil, "artwork")
         frameBackgroundTexture:SetPoint("topleft", frame, "topleft", 1, -85)
         frameBackgroundTexture:SetPoint("bottomright", frame, "bottomright", -1, 20)
-        frameBackgroundTexture:SetColorTexture (0.2317647, 0.2317647, 0.2317647)
-        frameBackgroundTexture:SetVertexColor (0.27, 0.27, 0.27)
-        frameBackgroundTexture:SetAlpha (0.3)
+        frameBackgroundTexture:SetColorTexture(0.0626, 0.0626, 0.0626, 0.3)
         local frameBackgroundTextureTopLine = frame:CreateTexture(nil, "artwork")
         frameBackgroundTextureTopLine:SetPoint("bottomleft", frameBackgroundTexture, "topleft", 0, 0)
         frameBackgroundTextureTopLine:SetPoint("bottomright", frame, "topright", -1, 0)
@@ -77,7 +62,7 @@ function ForeverQoLOptions:Init()
         {
             { -- General
                 type = "label",
-                get = function() return "General" end,
+                text = "General",
                 text_template = orangeTextTemplate
             },
             { -- Max Out Camera Distance
@@ -86,16 +71,14 @@ function ForeverQoLOptions:Init()
                 name = "Max Out Camera Distance",
                 desc = ForeverQoL.L["A /reload may be required to take effect."],
                 get = function() return ForeverQoLData.Configs["MaxOutCameraDistance"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["MaxOutCameraDistance"] = value
-                end,
+                set = function(_, _, value) ForeverQoLData.Configs["MaxOutCameraDistance"] = value end,
             },
             {
                 type = "breakline"
             },
             { -- Graphics
                 type = "label",
-                get = function() return "Graphics" end,
+                text = "Graphics",
                 text_template = orangeTextTemplate
             },
             { -- Use Perfect Pixel
@@ -104,9 +87,7 @@ function ForeverQoLOptions:Init()
                 name = "Use Perfect Pixel",
                 desc = "Set the UI Scale based on the vertical resolution (UIScale = 768 / verticalResolution). Requires /reload to take effect",
                 get = function() return ForeverQoLData.Configs["UsePerfectPixel"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["UsePerfectPixel"] = value
-                end,
+                set = function(_, _, value) ForeverQoLData.Configs["UsePerfectPixel"] = value end,
             },
             { -- Use Custom Height
                 type = "textentry",
@@ -123,10 +104,7 @@ function ForeverQoLOptions:Init()
                     end
                 end,
                 hooks = {
-                    OnEditFocusLost = function(self)
-                        self:SetText(ForeverQoLData.Configs["UseCustomHeight"])
-                    end,
-                    OnEnterPressed = function(self) return end
+                    OnEditFocusLost = function(self) self:SetText(ForeverQoLData.Configs["UseCustomHeight"]) end,
                 },
             },
             {
@@ -135,7 +113,7 @@ function ForeverQoLOptions:Init()
             },
             { -- Audio
                 type = "label",
-                get = function() return "Audio" end,
+                text = "Audio",
                 text_template = orangeTextTemplate
             },
             { -- Mute Annoying Sound
@@ -144,13 +122,10 @@ function ForeverQoLOptions:Init()
                 name = "Mute Annoying Sound",
                 desc = "Requires /reload to take effect",
                 get = function() return ForeverQoLData.Configs["MuteAnnoyingSound"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["MuteAnnoyingSound"] = value
-                end,
+                set = function(_, _, value) ForeverQoLData.Configs["MuteAnnoyingSound"] = value end,
             },
         },
-        10, -100, CONST_MENU_HEIGHT, false,
-        textTemplate, dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
+        10, -100, CONST_MENU_HEIGHT, false, textTemplate, dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
     )
 
     -- Social
@@ -158,7 +133,7 @@ function ForeverQoLOptions:Init()
         {
             { -- Chat
                 type = "label",
-                get = function() return "Chat" end,
+                text = "Chat",
                 text_template = orangeTextTemplate
             },
             { -- Disable Chat Clamping
@@ -172,9 +147,64 @@ function ForeverQoLOptions:Init()
                     ForeverQoL.Social.Chat:UpdateChat()
                 end,
             },
+            { -- Restore Chat Messages
+                type = "toggle",
+                boxfirst = true,
+                name = "Restore Chat Messages",
+                desc = "Put the chat history back after a /reload. Requires /reload to take effect",
+                get = function() return ForeverQoLData.Configs["RestoreChatMessages"] end,
+                set = function(_, _, value) ForeverQoLData.Configs["RestoreChatMessages"] = value end,
+            },
+            {
+                type = "breakline"
+            },
+            { -- Invites
+                type = "label",
+                text = "Invites",
+                text_template = orangeTextTemplate
+            },
+            { -- Block Duel Requests
+                type = "toggle",
+                boxfirst = true,
+                name = "Block Duel Requests",
+                desc = "Decline duels from anyone who is not on your friends list",
+                get = function() return ForeverQoLData.Configs["BlockDuelRequests"] end,
+                set = function(_, _, value) ForeverQoLData.Configs["BlockDuelRequests"] = value end,
+            },
+            { -- Block Duel Spam
+                type = "toggle",
+                boxfirst = true,
+                name = "Block Duel Spam",
+                desc = "Hide the system messages announcing duels you had no part in",
+                get = function() return ForeverQoLData.Configs["BlockDuelSpam"] end,
+                set = function(_, _, value) ForeverQoLData.Configs["BlockDuelSpam"] = value end,
+            },
+            { -- Block Party Invites
+                type = "toggle",
+                boxfirst = true,
+                name = "Block Party Invites",
+                desc = "Decline group invites from anyone who is not on your friends list",
+                get = function() return ForeverQoLData.Configs["BlockPartyInvites"] end,
+                set = function(_, _, value) ForeverQoLData.Configs["BlockPartyInvites"] = value end,
+            },
+            { -- Block Friend Requests
+                type = "toggle",
+                boxfirst = true,
+                name = "Block Friend Requests",
+                desc = "Decline incoming BattleTag and Real ID friend requests",
+                get = function() return ForeverQoLData.Configs["BlockFriendRequests"] end,
+                set = function(_, _, value) ForeverQoLData.Configs["BlockFriendRequests"] = value end,
+            },
+            { -- Show Inviter Info
+                type = "toggle",
+                boxfirst = true,
+                name = "Announce Inviter",
+                desc = "Print the race and class of whoever invites you to a group",
+                get = function() return ForeverQoLData.Configs["ShowInviterInfo"] end,
+                set = function(_, _, value) ForeverQoLData.Configs["ShowInviterInfo"] = value end,
+            },
         },
-        10, -100, CONST_MENU_HEIGHT, false,
-        textTemplate, dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
+        10, -100, CONST_MENU_HEIGHT, false, textTemplate, dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
     )
 
     -- Gameplay
@@ -182,7 +212,7 @@ function ForeverQoLOptions:Init()
         {
             { -- General
                 type = "label",
-                get = function() return "General" end,
+                text = "General",
                 text_template = orangeTextTemplate
             },
             { -- Auto Group Chat
@@ -201,16 +231,14 @@ function ForeverQoLOptions:Init()
                 boxfirst = true,
                 name = "Faster Auto Loot",
                 get = function() return ForeverQoLData.Configs["FasterAutoLoot"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["FasterAutoLoot"] = value
-                end,
+                set = function(_, _, value) ForeverQoLData.Configs["FasterAutoLoot"] = value end,
             },
             {
                 type = "breakline"
             },
             { -- Automation
                 type = "label",
-                get = function() return "Automation" end,
+                text = "Automation",
                 text_template = orangeTextTemplate
             },
             { -- Auto Accept Resurrect
@@ -219,9 +247,7 @@ function ForeverQoLOptions:Init()
                 name = "Accept Resurrections",
                 desc = "Take any resurrection offered, without the confirmation box",
                 get = function() return ForeverQoLData.Configs["AutoAcceptResurrect"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["AutoAcceptResurrect"] = value
-                end,
+                set = function(_, _, value) ForeverQoLData.Configs["AutoAcceptResurrect"] = value end,
             },
             { -- Auto Accept Summon
                 type = "toggle",
@@ -229,9 +255,7 @@ function ForeverQoLOptions:Init()
                 name = "Accept Summons",
                 desc = "Take any summon offered, without the confirmation box",
                 get = function() return ForeverQoLData.Configs["AutoAcceptSummon"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["AutoAcceptSummon"] = value
-                end,
+                set = function(_, _, value) ForeverQoLData.Configs["AutoAcceptSummon"] = value end,
             },
             { -- Thank On Summon
                 type = "toggle",
@@ -239,9 +263,7 @@ function ForeverQoLOptions:Init()
                 name = "Thank The Summoner",
                 desc = "Whisper the summoner after taking a summon",
                 get = function() return ForeverQoLData.Configs["ThankOnSummon"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["ThankOnSummon"] = value
-                end,
+                set = function(_, _, value) ForeverQoLData.Configs["ThankOnSummon"] = value end,
             },
             { -- Thank On Summon Message
                 type = "textentry",
@@ -257,10 +279,7 @@ function ForeverQoLOptions:Init()
                     end
                 end,
                 hooks = {
-                    OnEditFocusLost = function(self)
-                        self:SetText(ForeverQoLData.Configs["ThankOnSummonMessage"])
-                    end,
-                    OnEnterPressed = function(self) return end
+                    OnEditFocusLost = function(self) self:SetText(ForeverQoLData.Configs["ThankOnSummonMessage"]) end,
                 },
             },
             { -- Auto Confirm Role Check
@@ -269,9 +288,7 @@ function ForeverQoLOptions:Init()
                 name = "Confirm Role Checks",
                 desc = "Answer the group finder role check with the role already selected",
                 get = function() return ForeverQoLData.Configs["AutoConfirmRoleCheck"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["AutoConfirmRoleCheck"] = value
-                end,
+                set = function(_, _, value) ForeverQoLData.Configs["AutoConfirmRoleCheck"] = value end,
             },
             { -- Auto Release In PvP
                 type = "toggle",
@@ -279,13 +296,10 @@ function ForeverQoLOptions:Init()
                 name = "Release In Battlegrounds",
                 desc = "Release straight away on death in a battleground or arena, never elsewhere",
                 get = function() return ForeverQoLData.Configs["AutoReleaseInPvP"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["AutoReleaseInPvP"] = value
-                end,
+                set = function(_, _, value) ForeverQoLData.Configs["AutoReleaseInPvP"] = value end,
             },
         },
-        10, -100, CONST_MENU_HEIGHT, false,
-        textTemplate, dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
+        10, -100, CONST_MENU_HEIGHT, false, textTemplate, dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
     )
 
     -- Inventory
@@ -293,7 +307,7 @@ function ForeverQoLOptions:Init()
         {
             { -- Merchant
                 type = "label",
-                get = function() return "Merchant" end,
+                text = "Merchant",
                 text_template = orangeTextTemplate
             },
             { -- Repair Gear Automatically
@@ -301,18 +315,14 @@ function ForeverQoLOptions:Init()
                 boxfirst = true,
                 name = "Repair Gear Automatically",
                 get = function() return ForeverQoLData.Configs["RepairGearAutomatically"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["RepairGearAutomatically"] = value
-                end,
+                set = function(_, _, value) ForeverQoLData.Configs["RepairGearAutomatically"] = value end,
             },
             { -- Use Guild Bank For Repair
                 type = "toggle",
                 boxfirst = true,
                 name = "Use Guild Bank For Repair",
                 get = function() return ForeverQoLData.Configs["UseGuildBankForRepair"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["UseGuildBankForRepair"] = value
-                end,
+                set = function(_, _, value) ForeverQoLData.Configs["UseGuildBankForRepair"] = value end,
             },
             { -- Show Repair Summary
                 type = "toggle",
@@ -320,9 +330,7 @@ function ForeverQoLOptions:Init()
                 name = "Announce Repair Cost",
                 desc = "Print what the repair cost in chat",
                 get = function() return ForeverQoLData.Configs["ShowRepairSummary"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["ShowRepairSummary"] = value
-                end,
+                set = function(_, _, value) ForeverQoLData.Configs["ShowRepairSummary"] = value end,
             },
             { -- Sell Junk Automatically
                 type = "toggle",
@@ -330,9 +338,7 @@ function ForeverQoLOptions:Init()
                 name = "Sell Junk Automatically",
                 desc = "Sell every grey item in the bags",
                 get = function() return ForeverQoLData.Configs["SellJunkAutomatically"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["SellJunkAutomatically"] = value
-                end,
+                set = function(_, _, value) ForeverQoLData.Configs["SellJunkAutomatically"] = value end,
             },
             { -- Keep Grey Gear
                 type = "toggle",
@@ -340,9 +346,7 @@ function ForeverQoLOptions:Init()
                 name = "Keep Grey Gear",
                 desc = "Spare grey weapons and armour, sell the rest. Put one on the list below to sell it anyway",
                 get = function() return ForeverQoLData.Configs["KeepGreyGear"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["KeepGreyGear"] = value
-                end,
+                set = function(_, _, value) ForeverQoLData.Configs["KeepGreyGear"] = value end,
             },
             { -- Sell Listed Items Automatically
                 type = "toggle",
@@ -350,9 +354,7 @@ function ForeverQoLOptions:Init()
                 name = "Sell Listed Items Automatically",
                 desc = "Also sell every item on the list below, whatever its quality",
                 get = function() return ForeverQoLData.Configs["SellListedItemsAutomatically"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["SellListedItemsAutomatically"] = value
-                end,
+                set = function(_, _, value) ForeverQoLData.Configs["SellListedItemsAutomatically"] = value end,
             },
             { -- Show Sell Summary
                 type = "toggle",
@@ -360,17 +362,13 @@ function ForeverQoLOptions:Init()
                 name = "Announce Sale Total",
                 desc = "Print how many items were sold and for how much",
                 get = function() return ForeverQoLData.Configs["ShowSellSummary"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["ShowSellSummary"] = value
-                end,
+                set = function(_, _, value) ForeverQoLData.Configs["ShowSellSummary"] = value end,
             },
             { -- Manage The Sell List
                 type = "execute",
                 name = "Manage My Sell List",
                 desc = "Open the list of items sold on sight, to add to it or take from it",
-                func = function()
-                    self:ToggleAutoSellList()
-                end,
+                func = function() self:ToggleAutoSellList() end,
             },
             { -- Buy Listed Items Automatically
                 type = "toggle",
@@ -378,17 +376,13 @@ function ForeverQoLOptions:Init()
                 name = "Buy Listed Items Automatically",
                 desc = "Top up the items on the list below whenever a merchant sells them",
                 get = function() return ForeverQoLData.Configs["BuyListedItemsAutomatically"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["BuyListedItemsAutomatically"] = value
-                end,
+                set = function(_, _, value) ForeverQoLData.Configs["BuyListedItemsAutomatically"] = value end,
             },
             { -- Manage The Buy List
                 type = "execute",
                 name = "Manage My Buy List",
                 desc = "Open the list of items kept stocked, with how many of each to keep",
-                func = function()
-                    self:ToggleAutoBuyList()
-                end,
+                func = function() self:ToggleAutoBuyList() end,
             },
             { -- Tint Known At Merchant
                 type = "toggle",
@@ -396,16 +390,14 @@ function ForeverQoLOptions:Init()
                 name = "Tint Known Items At Merchants",
                 desc = "Colour already collected items green. Turn off AlreadyKnown if you use it, or both will tint",
                 get = function() return ForeverQoLData.Configs["TintKnownAtMerchant"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["TintKnownAtMerchant"] = value
-                end,
+                set = function(_, _, value) ForeverQoLData.Configs["TintKnownAtMerchant"] = value end,
             },
             {
                 type = "breakline"
             },
             { -- Bank
                 type = "label",
-                get = function() return "Bank" end,
+                text = "Bank",
                 text_template = orangeTextTemplate
             },
             { -- Deposit Excess Gold To Bank
@@ -414,9 +406,7 @@ function ForeverQoLOptions:Init()
                 name = "Deposit Excess Gold To Bank",
                 desc = "When the bank is opened, move everything above the amount below",
                 get = function() return ForeverQoLData.Configs["DepositExcessGoldToBank"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["DepositExcessGoldToBank"] = value
-                end,
+                set = function(_, _, value) ForeverQoLData.Configs["DepositExcessGoldToBank"] = value end,
             },
             { -- Keep Gold Amount
                 type = "textentry",
@@ -433,10 +423,7 @@ function ForeverQoLOptions:Init()
                     end
                 end,
                 hooks = {
-                    OnEditFocusLost = function(self)
-                        self:SetText(ForeverQoLData.Configs["KeepGoldAmount"])
-                    end,
-                    OnEnterPressed = function(self) return end
+                    OnEditFocusLost = function(self) self:SetText(ForeverQoLData.Configs["KeepGoldAmount"]) end,
                 },
             },
             { -- Deposit Listed Items To Bank
@@ -445,24 +432,20 @@ function ForeverQoLOptions:Init()
                 name = "Deposit Listed Items",
                 desc = "Move every item on the list below into whichever bank tab is open",
                 get = function() return ForeverQoLData.Configs["DepositListedItemsToBank"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["DepositListedItemsToBank"] = value
-                end,
+                set = function(_, _, value) ForeverQoLData.Configs["DepositListedItemsToBank"] = value end,
             },
             { -- Manage The Deposit List
                 type = "execute",
                 name = "Manage My Deposit List",
                 desc = "Open the list of items sent to the bank on sight, to add to it or take from it",
-                func = function()
-                    self:ToggleAutoDepositList()
-                end,
+                func = function() self:ToggleAutoDepositList() end,
             },
             {
                 type = "breakline"
             },
             { -- Bags
                 type = "label",
-                get = function() return "Bags" end,
+                text = "Bags",
                 text_template = orangeTextTemplate
             },
             { -- Tint Unusable In Bags
@@ -471,9 +454,7 @@ function ForeverQoLOptions:Init()
                 name = "Mark Unusable Items In Red",
                 desc = "Colour items your character cannot use red in the default bags. Requires /reload to take effect",
                 get = function() return ForeverQoLData.Configs["TintUnusableInBags"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["TintUnusableInBags"] = value
-                end,
+                set = function(_, _, value) ForeverQoLData.Configs["TintUnusableInBags"] = value end,
             },
             { -- Desaturate Junk In Bags
                 type = "toggle",
@@ -481,13 +462,18 @@ function ForeverQoLOptions:Init()
                 name = "Grey Out Junk Items",
                 desc = "Dim and drain the colour from grey quality items and auto sell list items in the default bags. Requires /reload to take effect",
                 get = function() return ForeverQoLData.Configs["DesaturateJunkInBags"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["DesaturateJunkInBags"] = value
-                end,
+                set = function(_, _, value) ForeverQoLData.Configs["DesaturateJunkInBags"] = value end,
+            },
+            { -- Easy Item Destroy
+                type = "toggle",
+                boxfirst = true,
+                name = "Skip Typing DELETE",
+                desc = "Fill in the delete confirmation for you. Items that start a quest still have to be typed out. Requires /reload to take effect",
+                get = function() return ForeverQoLData.Configs["EasyItemDestroy"] end,
+                set = function(_, _, value) ForeverQoLData.Configs["EasyItemDestroy"] = value end,
             },
         },
-        10, -100, CONST_MENU_HEIGHT, false,
-        textTemplate, dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
+        10, -100, CONST_MENU_HEIGHT, false, textTemplate, dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
     )
 
     -- Interface
@@ -495,7 +481,7 @@ function ForeverQoLOptions:Init()
         {
             { -- Quests
                 type = "label",
-                get = function() return "Quests" end,
+                text = "Quests",
                 text_template = orangeTextTemplate
             },
             { -- Untrack Completed Quests
@@ -514,7 +500,7 @@ function ForeverQoLOptions:Init()
             },
             { -- Visibility
                 type = "label",
-                get = function() return "Visibility" end,
+                text = "Visibility",
                 text_template = orangeTextTemplate
             },
             { -- Floating Combat Text Visibility
@@ -530,9 +516,7 @@ function ForeverQoLOptions:Init()
                 name = "Hide Tooltip While In Combat",
                 desc = "Requires /reload to take effect",
                 get = function() return ForeverQoLData.Configs["HideTooltipWhileInCombat"] end,
-                set = function(_, _, value)
-                    ForeverQoLData.Configs["HideTooltipWhileInCombat"] = value
-                end,
+                set = function(_, _, value) ForeverQoLData.Configs["HideTooltipWhileInCombat"] = value end,
             },
             { -- Bag Bar Visibility
                 type = "select",
@@ -555,12 +539,84 @@ function ForeverQoLOptions:Init()
                 get = function() return ForeverQoLData.Configs["StatusBarVisibility"] end,
                 values = function() return ForeverQoL.Interface.Visibility:GetVisibilityOptions("StatusBarVisibility") end,
             },
+            { -- Hide Boss Banner
+                type = "toggle",
+                boxfirst = true,
+                name = "Hide Boss Loot Banner",
+                desc = "The banner naming the boss and its loot after a kill. Requires /reload to take effect",
+                get = function() return ForeverQoLData.Configs["HideBossBanner"] end,
+                set = function(_, _, value) ForeverQoLData.Configs["HideBossBanner"] = value end,
+            },
+            { -- Hide Event Toasts
+                type = "toggle",
+                boxfirst = true,
+                name = "Hide Event Toasts",
+                desc = "The banners that drop from the top of the screen on finishing an activity. Requires /reload to take effect",
+                get = function() return ForeverQoLData.Configs["HideEventToasts"] end,
+                set = function(_, _, value) ForeverQoLData.Configs["HideEventToasts"] = value end,
+            },
+            { -- Hide Zone Text
+                type = "toggle",
+                boxfirst = true,
+                name = "Hide Zone Text",
+                desc = "The zone and subzone names that fade in over the screen on arrival. Requires /reload to take effect",
+                get = function() return ForeverQoLData.Configs["HideZoneText"] end,
+                set = function(_, _, value) ForeverQoLData.Configs["HideZoneText"] = value end,
+            },
+            { -- Hide Error Messages
+                type = "toggle",
+                boxfirst = true,
+                name = "Hide Error Messages",
+                desc = "The red text above the player frame, such as Out of range. Hides all of them, including ones worth reading. Requires /reload to take effect",
+                get = function() return ForeverQoLData.Configs["HideErrorMessages"] end,
+                set = function(_, _, value) ForeverQoLData.Configs["HideErrorMessages"] = value end,
+            },
+            {
+                type = "breakline"
+            },
+            { -- Action Bars
+                type = "label",
+                text = "Action Bars",
+                text_template = orangeTextTemplate
+            },
+            { -- Hide Keybind Text
+                type = "toggle",
+                boxfirst = true,
+                name = "Hide Keybind Text",
+                desc = "Hide the hotkey label in the corner of every action button. Requires /reload to take effect",
+                get = function() return ForeverQoLData.Configs["HideKeybindText"] end,
+                set = function(_, _, value) ForeverQoLData.Configs["HideKeybindText"] = value end,
+            },
+            { -- Hide Macro Text
+                type = "toggle",
+                boxfirst = true,
+                name = "Hide Macro Text",
+                desc = "Hide the macro name along the bottom of every action button. Requires /reload to take effect",
+                get = function() return ForeverQoLData.Configs["HideMacroText"] end,
+                set = function(_, _, value) ForeverQoLData.Configs["HideMacroText"] = value end,
+            },
+            {
+                type = "breakline"
+            },
+            { -- Tooltip
+                type = "label",
+                text = "Tooltip",
+                text_template = orangeTextTemplate
+            },
+            { -- Show Target In Tooltip
+                type = "toggle",
+                boxfirst = true,
+                name = "Show Target In Tooltip",
+                desc = "Add who a unit is currently attacking to its tooltip. Requires /reload to take effect",
+                get = function() return ForeverQoLData.Configs["ShowTargetInTooltip"] end,
+                set = function(_, _, value) ForeverQoLData.Configs["ShowTargetInTooltip"] = value end,
+            },
             {
                 type = "breakline"
             },
             { -- Other Addons
                 type = "label",
-                get = function() return "Other Addons" end,
+                text = "Other Addons",
                 text_template = orangeTextTemplate
             },
             { -- Grid2
@@ -575,8 +631,7 @@ function ForeverQoLOptions:Init()
                 end,
             },
         },
-        10, -100, CONST_MENU_HEIGHT, false,
-        textTemplate, dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
+        10, -100, CONST_MENU_HEIGHT, false, textTemplate, dropdownTemplate, switchTemplate, true, sliderTemplate, buttonTemplate
     )
 end
 

@@ -2,7 +2,7 @@ local ForeverQoL = select(2, ...)
 
 local Interface = CreateFrame("Frame", "ForeverQoL_Interface")
 
-local CONST_KNOWN_COLOR = { r = 0, g = 1, b = 0 }
+-- Known items go green; the icon itself is dimmed so the item art still reads through it.
 local CONST_ICON_DIM = 0.9
 local CONST_JUNK_SHADE = 0.4
 local CONST_PET_KNOWN_PREFIX = string.match(ITEM_PET_KNOWN, "[^%(]+")
@@ -36,11 +36,10 @@ local function UpdateKnowMerchant()
         local page = MerchantFrame.page or 1
         local itemLink = GetMerchantItemLink(((page - 1) * MERCHANT_ITEMS_PER_PAGE) + index)
         if itemLink and IsKnown(itemLink) then
-            local r, g, b = CONST_KNOWN_COLOR.r, CONST_KNOWN_COLOR.g, CONST_KNOWN_COLOR.b
-            SetItemButtonNameFrameVertexColor(merchantButton, r, g, b)
-            SetItemButtonSlotVertexColor(merchantButton, r, g, b)
-            SetItemButtonTextureVertexColor(itemButton, r * CONST_ICON_DIM, g * CONST_ICON_DIM, b * CONST_ICON_DIM)
-            SetItemButtonNormalTextureVertexColor(itemButton, r * CONST_ICON_DIM, g * CONST_ICON_DIM, b * CONST_ICON_DIM)
+            SetItemButtonNameFrameVertexColor(merchantButton, 0, 1, 0)
+            SetItemButtonSlotVertexColor(merchantButton, 0, 1, 0)
+            SetItemButtonTextureVertexColor(itemButton, 0, CONST_ICON_DIM, 0)
+            SetItemButtonNormalTextureVertexColor(itemButton, 0, CONST_ICON_DIM, 0)
         end
     end
 end
@@ -107,10 +106,12 @@ local function MarkContainer(containerFrame)
     for _, itemButton in ipairs(containerFrame.Items) do
         if itemButton.GetSlotAndBagID then
             local slotID, bagID = itemButton:GetSlotAndBagID()
-            local info = C_Container.GetContainerItemInfo(bagID, slotID)
+            -- Switching the combined bags on or off rebuilds these frames, and a button that
+            -- has not been handed its slot back yet answers -1, which the container API rejects.
+            local info = slotID > 0 and C_Container.GetContainerItemInfo(bagID, slotID)
             MarkItem(itemButton,
-                info ~= nil and ForeverQoLData.Configs["TintUnusableInBags"] and IsUnusable(bagID, slotID),
-                info ~= nil and ForeverQoLData.Configs["DesaturateJunkInBags"]
+                info and ForeverQoLData.Configs["TintUnusableInBags"] and IsUnusable(bagID, slotID),
+                info and ForeverQoLData.Configs["DesaturateJunkInBags"]
                     and (info.quality == 0 or ForeverQoLData.Configs.AutoSellItemList[info.itemID] == true))
         end
     end
@@ -149,6 +150,18 @@ function Interface:Init()
         UpdateBagMarks()
     end
 
+    if ForeverQoLData.Configs["EasyItemDestroy"] then
+        -- Quest items keep the typing, which is the one case where the friction earns its keep.
+        hooksecurefunc("StaticPopup_Show", function(which)
+            local popup = which == "DELETE_GOOD_ITEM" and StaticPopup_FindVisible(which)
+            if popup then
+                popup.editBox:SetText(DELETE_ITEM_CONFIRM_STRING)
+            end
+        end)
+    end
+
+    self.ActionBars:Init()
+    self.Tooltip:Init()
     self.Quests:Init()
     self.Visibility:Init()
     self.OtherAddons:Init()

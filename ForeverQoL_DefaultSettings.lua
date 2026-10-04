@@ -13,6 +13,14 @@ ForeverQoL.DefaultSettings = {
 
     -- Social - Chat
     DisableChatClamping = true,
+    RestoreChatMessages = true,
+
+    -- Social - Invites
+    BlockDuelRequests = true,
+    BlockPartyInvites = false,
+    BlockFriendRequests = false,
+    BlockDuelSpam = true,
+    ShowInviterInfo = true,
 
     -- Gameplay - Automation
     AutoAcceptResurrect = true,
@@ -64,12 +72,24 @@ ForeverQoL.DefaultSettings = {
 
     -- Inventory - Bags
     TintUnusableInBags = true,
+    EasyItemDestroy = true,
     DesaturateJunkInBags = true,
+
+    -- Interface - Action Bars
+    HideKeybindText = false,
+    HideMacroText = true,
 
     -- Interface - Quests
     UntrackCompletedQuests = true,
 
+    -- Interface - Tooltip
+    ShowTargetInTooltip = true,
+
     -- Interface - Visibility
+    HideBossBanner = true,
+    HideErrorMessages = false,
+    HideZoneText = false,
+    HideEventToasts = true,
     FloatingCombatTextVisibility = "always",
     HideTooltipWhileInCombat = false,
     BagBarVisibility = "always",
@@ -85,14 +105,15 @@ function ForeverQoL:CreateDefaultSettings()
     ForeverQoLData.Configs = ForeverQoLData.Configs or {}
     for key, default in pairs(self.DefaultSettings) do
         if ForeverQoLData.Configs[key] == nil then
+            -- The item lists are copied, so editing one in game never writes into the defaults.
+            local saved = default
             if type(default) == "table" then
-                ForeverQoLData.Configs[key] = {}
+                saved = {}
                 for index, value in pairs(default) do
-                    ForeverQoLData.Configs[key][index] = value
+                    saved[index] = value
                 end
-            else
-                ForeverQoLData.Configs[key] = default
             end
+            ForeverQoLData.Configs[key] = saved
         end
     end
 end

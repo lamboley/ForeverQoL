@@ -1,0 +1,4 @@
+<Bindings>
+	<Binding name="FOREVERQOL_FOCUS_NEXT_QUEST" category="BINDING_HEADER_FOREVERQOL">ForeverQoL_FocusNextQuest();</Binding>
+	<Binding name="FOREVERQOL_FOCUS_PREVIOUS_QUEST" category="BINDING_HEADER_FOREVERQOL">ForeverQoL_FocusPreviousQuest();</Binding>
+</Bindings>

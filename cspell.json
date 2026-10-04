@@ -1,16 +1,9 @@
 {
     "version": "0.2",
-    "language": "en-US, en-GB, fr, en",
-    "caseSensitive": false,
+    "language": "en-US, en-GB, fr",
     "allowCompoundWords": true,
     "words": [
-        "Dalaran",
-        "Darnassian",
-        "Forestshroom",
-        "hideashealer",
-        "hideashealerortank",
-        "hideastank",
-        "luacheck",
-        "Tel'Abim"
+        "Dalaran", "Darnassian", "FOREVERQOL", "luacheck",
+        "hideashealer", "hideashealerortank", "hideastank", "Tel'Abim"
     ]
 }
