@@ -53,6 +53,7 @@ ForeverQoL.DefaultSettings = {
         [414] = true, -- Dalaran Sharp
         [4537] = true, -- Tel'Abim Banana
         [4605] = true, -- Red-speckled Mushroom
+        [117] = true, -- Tough Jerky
     },
     ShowRepairSummary = true,
     ShowSellSummary = true,
