@@ -21,7 +21,7 @@ globals = {
 	"Enum", "Item", "PixelUtil",
 
 	-- WoW Frames
-	"ActionBarButtonEventsFrame", "BagsBar", "BossBanner", "EventToastManagerFrame",
+	"ActionBarButtonEventsFrame", "BagsBar", "BossBanner", "EventToastManagerFrame", "MainActionBar",
 	"GameTooltip", "LootFrame", "MainStatusTrackingBarContainer", "MerchantFrame",
 	"MicroMenuContainer", "SubZoneTextFrame", "TooltipDataProcessor", "UIErrorsFrame",
 	"UIParent", "ZoneTextFrame",

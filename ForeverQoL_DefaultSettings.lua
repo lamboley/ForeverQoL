@@ -77,6 +77,7 @@ ForeverQoL.DefaultSettings = {
     DesaturateJunkInBags = true,
 
     -- Interface - Action Bars
+    EndCapScale = 1,
     HideKeybindText = false,
     HideMacroText = true,
 

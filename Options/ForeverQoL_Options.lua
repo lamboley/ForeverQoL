@@ -579,6 +579,19 @@ function ForeverQoLOptions:Init()
                 text = "Action Bars",
                 text_template = orangeTextTemplate
             },
+            { -- End Cap Scale
+                type = "range",
+                name = "Griffon Size",
+                desc = "Scale the griffons at either end of the main action bar",
+                min = 0.5,
+                max = 2,
+                usedecimals = true,
+                get = function() return ForeverQoLData.Configs["EndCapScale"] end,
+                set = function(_, _, value)
+                    ForeverQoLData.Configs["EndCapScale"] = value
+                    ForeverQoL.Interface.ActionBars:UpdateEndCaps()
+                end,
+            },
             { -- Hide Keybind Text
                 type = "toggle",
                 boxfirst = true,
